@@ -13,7 +13,9 @@
                 echo ucwords(strtolower($_GET["l_name"])); 
             }
 
-             // The if($_GET) condition checks if any data was received via the GET method. If the condition is true, it means the form was submitted.
+             // The if($_GET) condition checks if any data was received via the GET method. 
+             // If the condition is true, it means the form was submitted.
+
         ?>
     </body>
 </html>
