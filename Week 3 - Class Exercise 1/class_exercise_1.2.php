@@ -1,4 +1,5 @@
 <html>
+
     <body>
 
         <form action="class_exercise_1.2" method="get">
@@ -6,6 +7,7 @@
             Last Name: <input type="text" name="last_name"><br>
             <input type="submit">
         </form>
+
 
         <?php
 
@@ -25,6 +27,8 @@
             }
                 
         ?>
+        
 
     </body>
+
 </html>

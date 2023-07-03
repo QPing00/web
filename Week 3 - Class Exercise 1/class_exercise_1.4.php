@@ -22,7 +22,7 @@
 
                     for ($i = $num; $i>=1; $i--){
                         $sum += $i;
-                        
+
                         if ($i > 1) {
                             echo $i . " + ";
                         } else {
