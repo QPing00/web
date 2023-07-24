@@ -14,11 +14,6 @@ function input($data)
     // htmlspecialchars($data): This function converts special characters to their corresponding HTML entities. 
 }
 
-
-function allowedChar($username)
-{
-}
-
 ?>
 
 
