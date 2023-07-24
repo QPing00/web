@@ -163,7 +163,9 @@ function input($data)
             $emailEr = 'Please enter an email address';
         } else if (substr_count($email, '@') !== 1) {
             $emailEr = 'Email format incorrect';
+            //substr_count(string,substring)
             //The substr_count() function counts the number of times a substring occurs in a string.
+            //https://www.w3schools.com/PHP/func_string_substr_count.asp
         }
     }
 
