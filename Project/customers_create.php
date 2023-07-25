@@ -19,7 +19,7 @@
         <!-- html form to create product will be here -->
         <?php
 
-        $usernameEr = $passwordEr = $first_nameEr = $last_nameEr = $genderEr = $date_of_birthEr = $account_statusEr = '';
+        $usernameEr = $passwordEr = $confirm_passwordEr = $first_nameEr = $last_nameEr = $genderEr = $date_of_birthEr = $account_statusEr = '';
 
 
         if ($_POST) {
@@ -32,13 +32,16 @@
                 $stmt = $con->prepare($query);
                 // posted values
                 $username = strip_tags(ucwords(strtolower($_POST['username'])));
-                $password = strip_tags($_POST['password']);
+                $password_ori = strip_tags($_POST['password']);
+                $confirm_password = strip_tags($_POST['confirm_password']);
                 $first_name = strip_tags(ucwords(strtolower($_POST['first_name'])));
                 $last_name = strip_tags(ucwords(strtolower($_POST['last_name'])));
 
-                $gender = $_POST['gender'] ? strip_tags($_POST['gender']) : "";
-                $account_status = isset($_POST['account_status']) ? strip_tags($_POST['account_status']) : "";
-                $date_of_birth = strip_tags($_POST['date_of_birth']);
+                $gender = isset($_POST['gender']) ? $_POST['gender'] : "";
+                $account_status = isset($_POST['account_status']) ? $_POST['account_status'] : "";
+                $date_of_birth = $_POST['date_of_birth'];
+
+                $password = md5($password_ori);
 
                 // bind the parameters
                 $stmt->bindParam(':username', $username);
@@ -55,38 +58,55 @@
 
                 // Execute the query
 
+                $flag = true;
+
                 if (empty($username)) {
                     $usernameEr = "Please enter the username";
+                    $flag = false;
                 }
 
-                if (empty($password)) {
+                if (empty($password_ori)) {
                     $passwordEr = "Please enter the password";
+                    $flag = false;
+                }
+
+                if (empty($confirm_password)) {
+                    $confirm_passwordEr = "Please confirm your password";
+                    $flag = false;
+                } else if ($password !== $confirm_password) {
+                    $confirm_passwordEr = "Confirm password does not match with your password";
+                    $flag = false;
                 }
 
                 if (empty($first_name)) {
                     $first_nameEr = "Please enter your first name";
+                    $flag = false;
                 }
 
                 if (empty($last_name)) {
                     $last_nameEr = "Please enter your last name";
+                    $flag = false;
                 }
 
                 if (empty($gender)) {
                     $genderEr = "Please select a gender";
+                    $flag = false;
                 }
 
                 if (empty($date_of_birth)) {
                     $date_of_birthEr = "Please select your date of birth";
+                    $flag = false;
                 }
 
                 if (empty($account_status)) {
                     $account_statusEr = "Please select your account status";
+                    $flag = false;
                 }
 
-                if ($usernameEr == "" && $passwordEr == "" && $first_nameEr == "" && $last_nameEr == "" && $genderEr == "" && $date_of_birthEr == "" && $account_statusEr == "") {
+                if ($flag == true) {
                     if ($stmt->execute()) {
                         echo "<div class='alert alert-success'>Record was saved.</div>";
-                        $username = $password = $first_name = $last_name = $gender = $date_of_birth = $account_status = "";
+                        $username = $password = $confirm_password = $first_name = $last_name = $gender = $date_of_birth = $account_status = "";
                     }
                 } else {
                     echo "<div class='alert alert-danger'>Unable to save record.</div>";
@@ -112,8 +132,14 @@
                 </tr>
                 <tr>
                     <td>Password</td>
-                    <td><input type='password' name='password' class='form-control' value="<?php echo isset($password) ? $password : ''; ?>" />
+                    <td><input type='password' name='password' class='form-control' />
                         <div class='text-danger'><?php echo $passwordEr; ?></div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Confirm Password</td>
+                    <td><input type='password' name='confirm_password' class='form-control' />
+                        <div class='text-danger'><?php echo $confirm_passwordEr; ?></div>
                     </td>
                 </tr>
                 <tr>
