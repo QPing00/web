@@ -31,15 +31,14 @@
                 // prepare query for execution
                 $stmt = $con->prepare($query);
                 // posted values
-                $username = htmlspecialchars(strip_tags(trim(ucwords(strtolower($_POST['username'])))));
-                $password = htmlspecialchars(strip_tags(trim($_POST['password'])));
-                $first_name = htmlspecialchars(strip_tags(trim(ucwords(strtolower($_POST['first_name'])))));
-                $last_name = htmlspecialchars(strip_tags(trim(ucwords(strtolower($_POST['last_name'])))));
+                $username = strip_tags(ucwords(strtolower($_POST['username'])));
+                $password = strip_tags($_POST['password']);
+                $first_name = strip_tags(ucwords(strtolower($_POST['first_name'])));
+                $last_name = strip_tags(ucwords(strtolower($_POST['last_name'])));
 
-                $gender = isset($_POST['gender']) ? htmlspecialchars(strip_tags($_POST['gender'])) : "";
-                // $account_status = isset($_POST['account_status']) ? htmlspecialchars(strip_tags($_POST['account_status'])) : "";
-                $account_status = "Active";
-                $date_of_birth = htmlspecialchars(strip_tags($_POST['date_of_birth']));
+                $gender = $_POST['gender'] ? strip_tags($_POST['gender']) : "";
+                $account_status = isset($_POST['account_status']) ? strip_tags($_POST['account_status']) : "";
+                $date_of_birth = strip_tags($_POST['date_of_birth']);
 
                 // bind the parameters
                 $stmt->bindParam(':username', $username);
@@ -81,12 +80,14 @@
                 }
 
                 if (empty($account_status)) {
-                    $account_statusEr = "Ermmm";
+                    $account_statusEr = "Please select your account status";
                 }
 
-                if ($stmt->execute() && $usernameEr == "" && $passwordEr == "" && $first_nameEr == "" && $last_nameEr == "" && $genderEr == "" && $date_of_birthEr == "") {
-                    echo "<div class='alert alert-success'>Record was saved.</div>";
-                    $username = $password = $first_name = $last_name = $gender = $date_of_birth = "";
+                if ($usernameEr == "" && $passwordEr == "" && $first_nameEr == "" && $last_nameEr == "" && $genderEr == "" && $date_of_birthEr == "" && $account_statusEr == "") {
+                    if ($stmt->execute()) {
+                        echo "<div class='alert alert-success'>Record was saved.</div>";
+                        $username = $password = $first_name = $last_name = $gender = $date_of_birth = $account_status = "";
+                    }
                 } else {
                     echo "<div class='alert alert-danger'>Unable to save record.</div>";
                 }
@@ -96,7 +97,6 @@
                 die('ERROR: ' . $exception->getMessage());
             }
         }
-
 
         ?>
 
@@ -153,16 +153,31 @@
                         <div class='text-danger'><?php echo $date_of_birthEr; ?></div>
                     </td>
                 </tr>
-                <!-- <tr>
+                <tr>
                     <td>Account Status</td>
                     <td>
-                        <input type="radio" name="account_status" value="Active">Active
-                        <input type="radio" name="account_status" value="Inactive">Inactive
-                        <input type="radio" name="account_status" value="Pending">Pending
-                        <div class='text-danger'><?php // echo $account_statusEr; 
-                                                    ?></div>
+                        <?php
+                        if (isset($account_status) && $account_status == 'Active') {
+                            echo '<input type="radio" name="account_status" value="Active" checked> Active   ';
+                        } else {
+                            echo '<input type="radio" name="account_status" value="Active"> Active   ';
+                        }
+
+                        if (isset($account_status) && $account_status == 'Inactive') {
+                            echo '<input type="radio" name="account_status" value="Inactive" checked> Inactive   ';
+                        } else {
+                            echo '<input type="radio" name="account_status" value="Inactive"> Inactive   ';
+                        }
+
+                        if (isset($account_status) && $account_status == 'Pending') {
+                            echo '<input type="radio" name="account_status" value="Pending" checked> Pending   ';
+                        } else {
+                            echo '<input type="radio" name="account_status" value="Pending"> Pending   ';
+                        }
+                        ?>
+                        <div class='text-danger'><?php echo $account_statusEr; ?></div>
                     </td>
-                </tr> -->
+                </tr>
                 <tr>
                     <td></td>
                     <td>

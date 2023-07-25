@@ -30,12 +30,12 @@
                 // prepare query for execution
                 $stmt = $con->prepare($query);
                 // posted values
-                $name = htmlspecialchars(strip_tags(trim($_POST['name'])));
-                $description = htmlspecialchars(strip_tags(trim($_POST['description'])));
-                $price = htmlspecialchars(strip_tags($_POST['price']));
-                $promotion_price = htmlspecialchars(strip_tags($_POST['promotion_price']));
-                $manufacture_date = htmlspecialchars(strip_tags($_POST['manufacture_date']));
-                $expired_date = htmlspecialchars(strip_tags($_POST['expired_date']));
+                $name = strip_tags($_POST['name']);
+                $description = strip_tags($_POST['description']);
+                $price = strip_tags($_POST['price']);
+                $promotion_price = strip_tags($_POST['promotion_price']);
+                $manufacture_date = strip_tags($_POST['manufacture_date']);
+                $expired_date = strip_tags($_POST['expired_date']);
 
                 // bind the parameters
                 $stmt->bindParam(':name', $name);
@@ -84,14 +84,18 @@
                     $expired_dateEr = "Expired date must be earlier than manufacture date";
                 }
 
-                if ($stmt->execute() && $nameEr == "" && $descriptionEr == "" && $priceEr == "" && $promotion_priceEr == "" && $manufacture_dateEr == "" && $expired_dateEr == "") {
-                    echo "<div class='alert alert-success'>Record was saved.</div>";
-                    $name = $description = $price = $promotion_price = $manufacture_date = $expired_date = "";
-                } else {
-                    echo "<div class='alert alert-danger'>Unable to save record.</div>";
+                if ($nameEr == "" && $descriptionEr == "" && $priceEr == "" && $promotion_priceEr == "" && $manufacture_dateEr == "" && $expired_dateEr == "") {
+                    if ($stmt->execute()) {
+                        // if $stmt->execute() == true - not problem with above sql 
+                        echo "<div class='alert alert-success'>Record was saved.</div>";
+                        $name = $description = $price = $promotion_price = $manufacture_date = $expired_date = "";
+                    } else {
+                        echo "<div class='alert alert-danger'>Unable to save record.</div>";
+                    }
                 }
             }
             // show error
+            // problem with sql (eg. wrong database link, incorrect username or password, table/column not found, etc)
             catch (PDOException $exception) {
                 die('ERROR: ' . $exception->getMessage());
             }
