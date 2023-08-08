@@ -19,18 +19,21 @@
         <!-- html form to create product will be here -->
         <?php
 
-        $nameEr = $descriptionEr = $priceEr = $promotion_priceEr = $manufacture_dateEr = $expired_dateEr = "";
+        $nameEr = $categoryEr = $descriptionEr = $priceEr = $promotion_priceEr = $manufacture_dateEr = $expired_dateEr = "";
+
+        include 'config/database.php';
 
         if ($_POST) {
             // include database connection
-            include 'config/database.php';
+
             try {
                 // insert query
-                $query = "INSERT INTO products SET name=:name, description=:description, price=:price, promotion_price=:promotion_price, manufacture_date=:manufacture_date, expired_date=:expired_date, created=:created";
+                $query = "INSERT INTO products SET name=:name, description=:description, category_id=:category_id, price=:price, promotion_price=:promotion_price, manufacture_date=:manufacture_date, expired_date=:expired_date, created=:created";
                 // prepare query for execution
                 $stmt = $con->prepare($query);
                 // posted values
                 $name = strip_tags($_POST['name']);
+                $category = strip_tags($_POST['category']);
                 $description = strip_tags($_POST['description']);
                 $price = strip_tags($_POST['price']);
                 $promotion_price = strip_tags($_POST['promotion_price']);
@@ -39,6 +42,7 @@
 
                 // bind the parameters
                 $stmt->bindParam(':name', $name);
+                $stmt->bindParam(':category_id', $category);
                 $stmt->bindParam(':description', $description);
                 $stmt->bindParam(':price', $price);
                 $stmt->bindParam(':promotion_price', $promotion_price);
@@ -52,6 +56,10 @@
                 // Execute the query
                 if (empty($name)) {
                     $nameEr = "Please enter the product name";
+                }
+
+                if (!is_numeric($category[0])) {
+                    $categoryEr = "Please select a category";
                 }
 
                 if (empty($description)) {
@@ -88,7 +96,7 @@
                     if ($stmt->execute()) {
                         // if $stmt->execute() == true - not problem with above sql 
                         echo "<div class='alert alert-success'>Record was saved.</div>";
-                        $name = $description = $price = $promotion_price = $manufacture_date = $expired_date = "";
+                        $name = $category = $description = $price = $promotion_price = $manufacture_date = $expired_date = "";
                     } else {
                         echo "<div class='alert alert-danger'>Unable to save record.</div>";
                     }
@@ -100,9 +108,8 @@
                 die('ERROR: ' . $exception->getMessage());
             }
         }
-
-
         ?>
+
 
 
         <!-- html form here where the product information will be entered -->
@@ -112,6 +119,26 @@
                     <td>Name</td>
                     <td><input type='text' name='name' class='form-control' value="<?php echo isset($name) ? $name : ''; ?>" />
                         <div class='text-danger'><?php echo $nameEr; ?></div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Categories</td>
+                    <td>
+                        <select class="form-select" aria-label="Default select example" name="category" id="category">
+                            <option>Select a Category</option>
+                            <?php
+                            $query = "SELECT category_id, category_name FROM categories";
+                            $stmt = $con->prepare($query);
+                            $stmt->execute();
+
+                            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                                extract($row);
+                                $selected = ($category_id == $category) ? "selected" : "";
+                                echo "<option value='$category_id' $selected>$category_id $category_name</option>";
+                            }
+                            ?>
+                        </select>
+                        <div class='text-danger'><?php echo $categoryEr; ?></div>
                     </td>
                 </tr>
                 <tr>
@@ -148,7 +175,7 @@
                     <td></td>
                     <td>
                         <input type='submit' value='Save' class='btn btn-primary' />
-                        <a href='index.php' class='btn btn-danger'>Back to read products</a>
+                        <a href='product_read.php' class='btn btn-danger'>Back to read products</a>
                     </td>
                 </tr>
             </table>
