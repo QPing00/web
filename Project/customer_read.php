@@ -5,7 +5,7 @@ It uses an HTML table to display the data retrieved from the MySQL database. -->
 <html>
 
 <head>
-    <title>PDO - Create a Record - PHP CRUD Tutorial</title>
+    <title>PDO - Read Records - PHP CRUD Tutorial</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
@@ -37,7 +37,7 @@ It uses an HTML table to display the data retrieved from the MySQL database. -->
         $num = $stmt->rowCount();
 
         // link to create record form
-        echo "<a href='customers_create.php' class='btn btn-primary m-b-1em'>Create New Customer</a>";
+        echo "<a href='customer_create.php' class='btn btn-primary m-b-1em'>Create New Customer</a>";
 
         //check if more than 0 record found
         if ($num > 0) {
@@ -48,7 +48,7 @@ It uses an HTML table to display the data retrieved from the MySQL database. -->
 
             //creating our table heading
             echo "<tr>";
-            echo "<th>ID</th>";
+            echo "<th>Customer ID</th>";
             echo "<th>Username</th>";
             echo "<th>First Name</th>";
             echo "<th>Last Name</th>";
@@ -78,32 +78,16 @@ It uses an HTML table to display the data retrieved from the MySQL database. -->
                 echo "<td>{$account_status}</td>";
                 echo "<td>";
                 // read one record
-                echo "<a href='customer_read_one.php?id={$customer_id}' class='btn btn-info' style='margin-right: 1em;'>Read</a>";
+                echo "<a href='customer_read_one.php?customer_id={$customer_id}' class='btn btn-info' style='margin-right: 1em;'>Read</a>";
 
                 // we will use this links on next part of this post
-                echo "<a href='update.php?id={$customer_id}' class='btn btn-primary' style='margin-right: 1em;'>Edit</a>";
+                echo "<a href='update.php?customer_id={$customer_id}' class='btn btn-primary' style='margin-right: 1em;'>Edit</a>";
 
                 // we will use this links on next part of this post
                 echo "<a href='#' onclick='delete_user({$customer_id});'  class='btn btn-danger'>Delete</a>";
                 echo "</td>";
                 echo "</tr>";
             }
-
-            //The while loop executes a block of code as long as the specified condition is true.
-            /* while (condition is true) {
-                 code to be executed;
-               }
-
-               The fetch() method is a PDO method used to retrieve rows from the result set of the executed query. 
-               The method returns an array containing the next row from the result set, or false if there are no more rows to fetch.
-
-               The extract() function in PHP is used to import the array elements from $row into the current symbol table. 
-               In this case, it creates variables with the names corresponding to the keys in the $row array. 
-               For example, if $row contains ['id' => 1, 'name' => 'Product A', 'description' => 'Some description', 'price' => 20.99], 
-               then after the extract() function, you can directly use variables like $id, $name, $description, and $price.
-            */
-
-
 
             // end table
             echo "</table>";
