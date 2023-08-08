@@ -21,8 +21,6 @@
         $username_loginEr = $password_loginEr = "";
 
         if ($_POST) {
-            // include database connection
-            include 'config/database.php';
 
             // posted values
             $username_login = strip_tags($_POST['username_login']);
@@ -42,6 +40,9 @@
             }
 
             if ($flag) {
+
+                // include database connection
+                include 'config/database.php';
 
                 try {
                     // Query the database to check if the username exists
@@ -63,8 +64,6 @@
                         $account_status = $user['account_status'];
                         if ($account_status == 'Inactive') {
                             echo "<div class='alert alert-danger'>Inactive Account</div>";
-                        } elseif ($account_status == 'Pending') {
-                            echo "<div class='alert alert-danger'>Pending Account</div>";
                         } else {
                             header("Location: dashboard.php");
                             exit();
