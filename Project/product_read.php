@@ -19,31 +19,45 @@ It uses an HTML table to display the data retrieved from the MySQL database. -->
             <h1>Read Products</h1>
         </div>
 
+        <a href='product_create.php' class='btn btn-primary m-b-1em'>Create New Product</a>
 
-        <!-- PHP code to read records will be here -->
+        <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="get">
+            <div class="d-flex justify-content-end">
+                <input type="search" id="search" name="search">
+                <input type="submit" value="Search" class="btn btn-secondary" />
+            </div>
+        </form>
+
 
         <?php
+
         // include database connection
         include 'config/database.php';
 
+        if ($_GET) {
+            $search = $_GET['search'];
+
+            $query = "SELECT id, name, category_id, description, price FROM products WHERE 
+            name LIKE '%$search%'
+            ORDER BY id ASC";
+        } else {
+            $query = "SELECT id, name, category_id, description, price FROM products ORDER BY id ASC";
+        }
+
         // delete message prompt will be here
 
-        // select all data
-        $query = "SELECT id, name, category_id, description, price FROM products ORDER BY id ASC";
+
         $stmt = $con->prepare($query);
         $stmt->execute();
 
         // this is how to get number of rows returned
         $num = $stmt->rowCount();
 
-        // link to create record form
-        echo "<a href='product_create.php' class='btn btn-primary m-b-1em'>Create New Product</a>";
 
         //check if more than 0 record found
         if ($num > 0) {
 
             // data from database will be here >
-
             echo "<table class='table table-hover table-responsive table-bordered'>"; //start table
 
             //creating our table heading
