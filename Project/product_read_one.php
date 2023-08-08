@@ -28,7 +28,10 @@
         // read current record's data
         try {
             // prepare select query
-            $query = "SELECT id, name, description, price FROM products WHERE id = ?";
+            $query = "SELECT p.id, p.name, p.description, p.price, c.category_name FROM products p
+            LEFT JOIN categories c ON p.category_id = c.category_id 
+            WHERE p.id = ?";
+
             $stmt = $con->prepare($query);
 
             // this is the first question mark
@@ -44,6 +47,7 @@
             $name = $row['name'];
             $description = $row['description'];
             $price = $row['price'];
+            $category_name = $row['category_name'];
         }
 
         /*
@@ -65,7 +69,6 @@
         ?>
 
 
-
         <!-- HTML read one record table will be here -->
         <!--we have our html table here where the record will be displayed-->
         <table class='table table-hover table-responsive table-bordered'>
@@ -80,6 +83,10 @@
             <tr>
                 <td>Price</td>
                 <td><?php echo htmlspecialchars($price, ENT_QUOTES);  ?></td>
+            </tr>
+            <tr>
+                <td>Category</td>
+                <td><?php echo htmlspecialchars($category_name, ENT_QUOTES);  ?></td>
             </tr>
             <tr>
                 <td></td>
