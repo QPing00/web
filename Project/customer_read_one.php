@@ -20,7 +20,7 @@
         <?php
         // get passed parameter value, in this case, the record ID
         // isset() is a PHP function used to verify if a value is there or not
-        $id = isset($_GET['customer_id']) ? $_GET['customer_id'] : die('ERROR: Record ID not found.');
+        $customer_id = isset($_GET['customer_id']) ? $_GET['customer_id'] : die('ERROR: Record Customer ID not found.');
 
         //include database connection
         include 'config/database.php';
@@ -28,7 +28,7 @@
         // read current record's data
         try {
             // prepare select query
-            $query = "SELECT customer_id, username, first_name, last_name, gender, date_of_birth, registration_date_and_time, account_status  FROM customers WHERE customer_id = ?";
+            $query = "SELECT customer_id, username, first_name, last_name, gender, date_of_birth, registration_date_and_time, account_status FROM customers WHERE customer_id = ?";
             $stmt = $con->prepare($query);
 
             // this is the first question mark
@@ -50,17 +50,6 @@
             $account_status = $row['account_status'];
         }
 
-        /*
-        $stmt->bindParam(1, $id);
-
-        The first argument (1 in this case): This specifies the parameter's position in the SQL query. 
-        In prepared statements, placeholders are typically represented using question marks (?). 
-        The parameter's position is the numerical order in which it appears in the query. 
-        In this case, 1 means that the first placeholder in the query will be replaced with the value of the parameter.
-
-        The second argument ($id in this case): This is the value that will be bound to the parameter. 
-        The value of the $id variable will be inserted into the prepared statement at the position of the first placeholder (?) 
-        when the statement is executed. */
 
         // show error
         catch (PDOException $exception) {
@@ -104,38 +93,10 @@
             <tr>
                 <td></td>
                 <td>
-                    <a href='customer_read.php' class='btn btn-danger'>Back to read products</a>
+                    <a href='customer_read.php' class='btn btn-danger'>Back to read customers</a>
                 </td>
             </tr>
         </table>
-
-        <!--
-            The ENT_QUOTES flag, when used with the htmlspecialchars() or htmlentities() function, 
-            indicates that both single and double quotes should be converted to their respective HTML entities. 
-            Specifically, it converts:
-
-            Single quote (') to &#039; or &apos;
-            Double quote (") to &quot;
-        -->
-
-
-        <!--
-            try: The try block is used to enclose a block of code that might throw an exception or cause an error. 
-            When an exception or error occurs within the try block, 
-            PHP will stop executing the code within the block and immediately jump to the corresponding catch block.
-
-            catch: The catch block is used to handle exceptions or errors that were thrown within the try block. 
-            It allows you to gracefully handle exceptional situations, such as database connection failures, 
-            file not found errors, or other exceptional conditions. 
-            When an exception occurs, PHP will look for the appropriate catch block that can handle the specific type 
-            of exception and execute the code within that block.
-
-            die: die is commonly used for early termination of a script when a specific condition is met or 
-            when an error occurs and no further execution is possible or needed. 
-            The die function outputs a message and terminates the script immediately.
-        -->
-
-
 
     </div> <!-- end .container -->
 
