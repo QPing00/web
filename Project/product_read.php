@@ -29,7 +29,7 @@ It uses an HTML table to display the data retrieved from the MySQL database. -->
         // delete message prompt will be here
 
         // select all data
-        $query = "SELECT id, name, description, price FROM products ORDER BY id ASC";
+        $query = "SELECT id, name, category_id, description, price FROM products ORDER BY id ASC";
         $stmt = $con->prepare($query);
         $stmt->execute();
 
@@ -50,6 +50,7 @@ It uses an HTML table to display the data retrieved from the MySQL database. -->
             echo "<tr>";
             echo "<th>ID</th>";
             echo "<th>Name</th>";
+            echo "<th>Category ID</th>";
             echo "<th>Description</th>";
             echo "<th>Price</th>";
             echo "<th>Action</th>";
@@ -67,6 +68,7 @@ It uses an HTML table to display the data retrieved from the MySQL database. -->
                 echo "<tr>";
                 echo "<td>{$id}</td>";
                 echo "<td>{$name}</td>";
+                echo "<td>{$category_id}</td>";
                 echo "<td>{$description}</td>";
                 echo "<td>{$price}</td>";
                 echo "<td>";
@@ -95,8 +97,6 @@ It uses an HTML table to display the data retrieved from the MySQL database. -->
                For example, if $row contains ['id' => 1, 'name' => 'Product A', 'description' => 'Some description', 'price' => 20.99], 
                then after the extract() function, you can directly use variables like $id, $name, $description, and $price.
             */
-
-
 
             // end table
             echo "</table>";
