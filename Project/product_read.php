@@ -19,12 +19,15 @@ It uses an HTML table to display the data retrieved from the MySQL database. -->
             <h1>Read Products</h1>
         </div>
 
+        <?php $searchEr = ""; ?>
+
         <a href='product_create.php' class='btn btn-primary m-b-1em'>Create New Product</a>
 
         <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="get">
             <div class="d-flex justify-content-end">
-                <input type="search" id="search" name="search">
+                <input type="search" id="search" name="search" />
                 <input type="submit" value="Search" class="btn btn-secondary" />
+
             </div>
         </form>
 
@@ -34,14 +37,18 @@ It uses an HTML table to display the data retrieved from the MySQL database. -->
         // include database connection
         include 'config/database.php';
 
+        $query = "SELECT id, name, category_id, description, price FROM products ORDER BY id ASC";
+
         if ($_GET) {
             $search = $_GET['search'];
+
+            if (empty($search)) {
+                echo "<div class='alert alert-danger'>Please enter a product keyword</div>";
+            }
 
             $query = "SELECT id, name, category_id, description, price FROM products WHERE 
             name LIKE '%$search%'
             ORDER BY id ASC";
-        } else {
-            $query = "SELECT id, name, category_id, description, price FROM products ORDER BY id ASC";
         }
 
         // delete message prompt will be here

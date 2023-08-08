@@ -19,25 +19,47 @@ It uses an HTML table to display the data retrieved from the MySQL database. -->
             <h1>Read Customers</h1>
         </div>
 
+        <a href='customer_create.php' class='btn btn-primary m-b-1em'>Create New Customer</a>
 
-        <!-- PHP code to read records will be here -->
+        <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="get">
+            <div class="d-flex justify-content-end">
+                <input type="search" id="search" name="search">
+                <input type="submit" value="Search" class="btn btn-secondary" />
+            </div>
+        </form>
+
 
         <?php
         // include database connection
         include 'config/database.php';
 
+        $query = "SELECT customer_id, username, first_name, last_name, gender, date_of_birth, registration_date_and_time, account_status FROM customers 
+            ORDER BY customer_id ASC";
+
+        if ($_GET) {
+            $search = $_GET['search'];
+
+            if (empty($search)) {
+                echo "<div class='alert alert-danger'>Please enter a product keyword</div>";
+            }
+
+            $query = "SELECT customer_id, username, first_name, last_name, gender, date_of_birth, registration_date_and_time, account_status FROM customers WHERE 
+            username LIKE '%$search%' OR
+            first_name LIKE '%$search%' OR
+            last_name LIKE '%$search%'
+            ORDER BY customer_id ASC";
+        }
+
         // delete message prompt will be here
 
         // select all data
-        $query = "SELECT customer_id, username, first_name, last_name, gender, date_of_birth, registration_date_and_time, account_status FROM customers ORDER BY customer_id ASC";
+
         $stmt = $con->prepare($query);
         $stmt->execute();
 
         // this is how to get number of rows returned
         $num = $stmt->rowCount();
 
-        // link to create record form
-        echo "<a href='customer_create.php' class='btn btn-primary m-b-1em'>Create New Customer</a>";
 
         //check if more than 0 record found
         if ($num > 0) {
