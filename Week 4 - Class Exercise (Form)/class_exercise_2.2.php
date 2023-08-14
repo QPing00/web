@@ -172,14 +172,13 @@ function input($data)
     ?>
 
 
-
     <!-- html -->
 
     <span class="error">* required field</span>
 
     <br><br>
 
-    <form action="2.2_redo.php" method="post">
+    <form action="class_exercise_2.2.php" method="post">
 
         First Name: <input type="text" name="f_name">
         <span class="error">*
