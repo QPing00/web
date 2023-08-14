@@ -1,6 +1,10 @@
 <!-- used for reading records from the database. 
 It uses an HTML table to display the data retrieved from the MySQL database. -->
 
+<?php
+include 'session.php';
+?>
+
 <!DOCTYPE HTML>
 <html>
 
@@ -13,28 +17,31 @@ It uses an HTML table to display the data retrieved from the MySQL database. -->
 </head>
 
 <body>
-    <!-- container -->
+    <?php
+    include 'navigation.php';
+    ?>
+
     <div class="container">
         <div class="page-header">
             <h1>Read Customers</h1>
         </div>
 
-        <a href='customer_create.php' class='btn btn-primary m-b-1em'>Create New Customer</a>
+        <div class="d-flex justify-content-between mb-4">
+            <a href="customer_create.php" class="btn btn-primary m-b-1em">Create New Customer</a>
 
-        <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="get">
-            <div class="d-flex justify-content-end">
-                <input type="search" id="search" name="search">
-                <input type="submit" value="Search" class="btn btn-secondary" />
-            </div>
-        </form>
+            <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="get" class="d-flex">
+                <input type="search" id="search" name="search" class="form-control me-2" />
+                <input type="submit" value="Search" class="btn btn-warning" />
+            </form>
+        </div>
 
 
         <?php
         // include database connection
         include 'config/database.php';
 
-        $query = "SELECT customer_id, username, first_name, last_name, gender, date_of_birth, registration_date_and_time, account_status FROM customers 
-            ORDER BY customer_id ASC";
+        $query = "SELECT username, email, first_name, last_name, gender, date_of_birth, registration_date_and_time, account_status FROM customers 
+            ORDER BY username ASC";
 
         if ($_GET) {
             $search = $_GET['search'];
@@ -43,11 +50,11 @@ It uses an HTML table to display the data retrieved from the MySQL database. -->
                 echo "<div class='alert alert-danger'>Please enter a product keyword</div>";
             }
 
-            $query = "SELECT customer_id, username, first_name, last_name, gender, date_of_birth, registration_date_and_time, account_status FROM customers WHERE 
+            $query = "SELECT username, email, first_name, last_name, gender, date_of_birth, registration_date_and_time, account_status FROM customers WHERE 
             username LIKE '%$search%' OR
             first_name LIKE '%$search%' OR
             last_name LIKE '%$search%'
-            ORDER BY customer_id ASC";
+            ORDER BY username ASC";
         }
 
         // delete message prompt will be here
@@ -70,8 +77,8 @@ It uses an HTML table to display the data retrieved from the MySQL database. -->
 
             //creating our table heading
             echo "<tr>";
-            echo "<th>Customer ID</th>";
             echo "<th>Username</th>";
+            echo "<th>Email</th>";
             echo "<th>First Name</th>";
             echo "<th>Last Name</th>";
             echo "<th>Gender</th>";
@@ -90,8 +97,8 @@ It uses an HTML table to display the data retrieved from the MySQL database. -->
                 extract($row);
                 // creating new table row per record
                 echo "<tr>";
-                echo "<td>{$customer_id}</td>";
                 echo "<td>{$username}</td>";
+                echo "<td>{$email}</td>";
                 echo "<td>{$first_name}</td>";
                 echo "<td>{$last_name}</td>";
                 echo "<td>{$gender}</td>";
@@ -100,13 +107,13 @@ It uses an HTML table to display the data retrieved from the MySQL database. -->
                 echo "<td>{$account_status}</td>";
                 echo "<td>";
                 // read one record
-                echo "<a href='customer_read_one.php?customer_id={$customer_id}' class='btn btn-info' style='margin-right: 1em;'>Read</a>";
+                echo "<a href='customer_read_one.php?username={$username}' class='btn btn-info' style='margin-right: 1em;'>Read</a>";
 
                 // we will use this links on next part of this post
-                echo "<a href='update.php?customer_id={$customer_id}' class='btn btn-primary' style='margin-right: 1em;'>Edit</a>";
+                echo "<a href='update.php?username={$username}' class='btn btn-primary' style='margin-right: 1em;'>Edit</a>";
 
                 // we will use this links on next part of this post
-                echo "<a href='#' onclick='delete_user({$customer_id});'  class='btn btn-danger'>Delete</a>";
+                echo "<a href='#' onclick='delete_user({$username});'  class='btn btn-danger'>Delete</a>";
                 echo "</td>";
                 echo "</tr>";
             }
