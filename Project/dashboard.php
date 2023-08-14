@@ -1,3 +1,7 @@
+<?php
+include 'session.php';
+?>
+
 <!DOCTYPE HTML>
 <html>
 
@@ -10,7 +14,10 @@
 </head>
 
 <body>
-    <!-- container -->
+    <?php
+    include 'navigation.php';
+    ?>
+
     <div class="container">
         <div class="page-header">
             <h1>Dashboard</h1>
