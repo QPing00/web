@@ -1,3 +1,7 @@
+<?php
+include 'session.php';
+?>
+
 <!DOCTYPE HTML>
 <html>
 
@@ -10,7 +14,10 @@
 </head>
 
 <body>
-    <!-- container -->
+    <?php
+    include 'navigation.php';
+    ?>
+
     <div class="container">
         <div class="page-header">
             <h1>Create Customers</h1>
@@ -19,7 +26,7 @@
         <!-- html form to create product will be here -->
         <?php
 
-        $usernameEr = $passwordEr = $confirm_passwordEr = $first_nameEr = $last_nameEr = $genderEr = $date_of_birthEr = $account_statusEr = '';
+        $usernameEr = $emailEr = $passwordEr = $confirm_passwordEr = $first_nameEr = $last_nameEr = $genderEr = $date_of_birthEr = $account_statusEr = '';
 
 
         if ($_POST) {
@@ -27,11 +34,12 @@
             include 'config/database.php';
             try {
                 // insert query
-                $query = "INSERT INTO customers SET username=:username, password=:password, first_name=:first_name, last_name=:last_name, gender=:gender, date_of_birth=:date_of_birth, account_status=:account_status, registration_date_and_time=:registration_date_and_time";
+                $query = "INSERT INTO customers SET username=:username, email=:email, password=:password, first_name=:first_name, last_name=:last_name, gender=:gender, date_of_birth=:date_of_birth, account_status=:account_status, registration_date_and_time=:registration_date_and_time";
                 // prepare query for execution
                 $stmt = $con->prepare($query);
                 // posted values
-                $username = strip_tags(ucwords(strtolower($_POST['username'])));
+                $username = strip_tags($_POST['username']);
+                $email = strip_tags($_POST['email']);
                 $password_ori = strip_tags($_POST['password']);
                 $confirm_password = strip_tags($_POST['confirm_password']);
                 $first_name = strip_tags(ucwords(strtolower($_POST['first_name'])));
@@ -45,6 +53,7 @@
 
                 // bind the parameters
                 $stmt->bindParam(':username', $username);
+                $stmt->bindParam(':email', $email);
                 $stmt->bindParam(':password', $password);
                 $stmt->bindParam(':first_name', $first_name);
                 $stmt->bindParam(':last_name', $last_name);
@@ -66,6 +75,12 @@
                 } else if (strlen($username) < 6) {
                     $usernameEr = 'Minimum 6 characters required';
                     $flag = false;
+                }
+
+                if (empty($email)) {
+                    $emailEr = 'Please enter an email address';
+                } else if (substr_count($email, '@') !== 1) {
+                    $emailEr = 'Email format incorrect';
                 }
 
                 if (empty($password_ori)) {
@@ -112,7 +127,7 @@
                 if ($flag == true) {
                     if ($stmt->execute()) {
                         echo "<div class='alert alert-success'>Record was saved.</div>";
-                        $username = $password_ori = $confirm_password = $first_name = $last_name = $gender = $date_of_birth = $account_status = "";
+                        $username = $email = $password_ori = $confirm_password = $first_name = $last_name = $gender = $date_of_birth = $account_status = "";
                     }
                 } else {
                     echo "<div class='alert alert-danger'>Unable to save record.</div>";
@@ -134,6 +149,12 @@
                     <td>Username</td>
                     <td><input type='text' name='username' class='form-control' value="<?php echo isset($username) ? $username : ''; ?>" />
                         <div class='text-danger'><?php echo $usernameEr; ?></div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Email Address</td>
+                    <td><input type='text' name='email' class='form-control' value="<?php echo isset($email) ? $email : ''; ?>" />
+                        <div class='text-danger'><?php echo $emailEr; ?></div>
                     </td>
                 </tr>
                 <tr>
