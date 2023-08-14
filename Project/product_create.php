@@ -1,8 +1,12 @@
+<?php
+include 'session.php';
+?>
+
 <!DOCTYPE HTML>
 <html>
 
 <head>
-    <title>PDO - Create a Record - PHP CRUD Tutorial</title>
+    <title>Product Create</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
@@ -10,7 +14,10 @@
 </head>
 
 <body>
-    <!-- container -->
+    <?php
+    include 'navigation.php';
+    ?>
+
     <div class="container">
         <div class="page-header">
             <h1>Create Product</h1>
@@ -18,17 +25,16 @@
 
         <!-- html form to create product will be here -->
         <?php
-
+        $category = "";
         $nameEr = $categoryEr = $descriptionEr = $priceEr = $promotion_priceEr = $manufacture_dateEr = $expired_dateEr = "";
 
         include 'config/database.php';
 
         if ($_POST) {
-            // include database connection
 
             try {
                 // insert query
-                $query = "INSERT INTO products SET name=:name, description=:description, category_id=:category_id, price=:price, promotion_price=:promotion_price, manufacture_date=:manufacture_date, expired_date=:expired_date, created=:created";
+                $query = "INSERT INTO products SET name=:name, category_id=:category_id, description=:description, price=:price, promotion_price=:promotion_price, manufacture_date=:manufacture_date, expired_date=:expired_date, created=:created";
                 // prepare query for execution
                 $stmt = $con->prepare($query);
                 // posted values
@@ -52,47 +58,58 @@
                 $created = date('Y-m-d H:i:s');
                 $stmt->bindParam(':created', $created);
 
+                $flag = true;
 
                 // Execute the query
                 if (empty($name)) {
                     $nameEr = "Please enter the product name";
+                    $flag = false;
                 }
 
                 if (!is_numeric($category[0])) {
                     $categoryEr = "Please select a category";
+                    $flag = false;
                 }
 
                 if (empty($description)) {
                     $descriptionEr = "Please enter the product description";
+                    $flag = false;
                 }
 
                 if (empty($price)) {
                     $priceEr = "Please enter the product price";
+                    $flag = false;
                 } else if (!is_numeric($price)) {
                     $priceEr = "Product price must be a number";
+                    $flag = false;
                 }
 
                 if (!empty($promotion_price) && !is_numeric($promotion_price)) {
                     $promotion_priceEr = "Product price must be a number";
+                    $flag = false;
                 }
 
                 if (empty($manufacture_date)) {
                     $manufacture_dateEr = "Please enter the product manufacture date";
+                    $flag = false;
                 }
 
                 if (empty($expired_date)) {
                     $expired_dateEr = "Please enter the product expired date";
+                    $flag = false;
                 }
 
                 if (!empty($promotion_price) && $promotion_price >= $price) {
                     $promotion_priceEr = "Promotion price must be cheaper than original price";
+                    $flag = false;
                 }
 
                 if (strtotime($manufacture_date) >= strtotime($expired_date)) {
                     $expired_dateEr = "Expired date must be earlier than manufacture date";
+                    $flag = false;
                 }
 
-                if ($nameEr == "" && $descriptionEr == "" && $priceEr == "" && $promotion_priceEr == "" && $manufacture_dateEr == "" && $expired_dateEr == "") {
+                if ($flag == true) {
                     if ($stmt->execute()) {
                         // if $stmt->execute() == true - not problem with above sql 
                         echo "<div class='alert alert-success'>Record was saved.</div>";
@@ -109,7 +126,6 @@
             }
         }
         ?>
-
 
 
         <!-- html form here where the product information will be entered -->
