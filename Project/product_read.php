@@ -1,6 +1,10 @@
 <!-- used for reading records from the database. 
 It uses an HTML table to display the data retrieved from the MySQL database. -->
 
+<?php
+include 'session.php';
+?>
+
 <!DOCTYPE HTML>
 <html>
 
@@ -13,7 +17,10 @@ It uses an HTML table to display the data retrieved from the MySQL database. -->
 </head>
 
 <body>
-    <!-- container -->
+    <?php
+    include 'navigation.php';
+    ?>
+
     <div class="container">
         <div class="page-header">
             <h1>Read Products</h1>
@@ -21,15 +28,14 @@ It uses an HTML table to display the data retrieved from the MySQL database. -->
 
         <?php $searchEr = ""; ?>
 
-        <a href='product_create.php' class='btn btn-primary m-b-1em'>Create New Product</a>
+        <div class="d-flex justify-content-between mb-4">
+            <a href="product_create.php" class="btn btn-primary m-b-1em">Create New Product</a>
 
-        <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="get">
-            <div class="d-flex justify-content-end">
-                <input type="search" id="search" name="search" />
-                <input type="submit" value="Search" class="btn btn-secondary" />
-
-            </div>
-        </form>
+            <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="get" class="d-flex">
+                <input type="search" id="search" name="search" class="form-control me-2" />
+                <input type="submit" value="Search" class="btn btn-warning" />
+            </form>
+        </div>
 
 
         <?php
@@ -94,10 +100,10 @@ It uses an HTML table to display the data retrieved from the MySQL database. -->
                 echo "<td>{$price}</td>";
                 echo "<td>";
                 // read one record
-                echo "<a href='product_read_one.php?id={$id}' class='btn btn-info' style='margin-right: 1em;'>Read</a>";
+                echo "<a href='product_read_one.php?id={$id}' class='btn btn-info' style='margin-right: 0.5em;'>Read</a>";
 
                 // we will use this links on next part of this post
-                echo "<a href='update.php?id={$id}' class='btn btn-primary' style='margin-right: 1em;'>Edit</a>";
+                echo "<a href='update.php?id={$id}' class='btn btn-primary' style='margin-right: 0.5em;'>Edit</a>";
 
                 // we will use this links on next part of this post
                 echo "<a href='#' onclick='delete_user({$id});'  class='btn btn-danger'>Delete</a>";
