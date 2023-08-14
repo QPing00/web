@@ -1,3 +1,5 @@
+<?php session_start(); ?>
+
 <!DOCTYPE HTML>
 <html>
 
@@ -10,8 +12,20 @@
 </head>
 
 <body>
-    <!-- container -->
+
     <div class="container">
+
+        <?php
+        // Check if there's an error parameter in the URL
+        if (isset($_GET['error'])) {
+            // Retrieve the error message from $_GET['error']
+            $error = $_GET['error'];
+            echo '<div class="alert alert-danger" role="alert">';
+            echo '<div> Please login to continue </div>';
+            echo '</div>';
+        }
+        ?>
+
         <div class="page-header">
             <h1>Login</h1>
         </div>
@@ -22,10 +36,8 @@
 
         if ($_POST) {
 
-            // posted values
             $username_login = strip_tags($_POST['username_login']);
             $password_login = strip_tags($_POST['password_login']);
-
 
             $flag = true;
 
@@ -41,7 +53,6 @@
 
             if ($flag) {
 
-                // include database connection
                 include 'config/database.php';
 
                 try {
@@ -65,6 +76,7 @@
                         if ($account_status == 'Inactive') {
                             echo "<div class='alert alert-danger'>Inactive Account</div>";
                         } else {
+                            $_SESSION["username"] = $username_login;
                             header("Location: dashboard.php");
                             exit();
                         }
