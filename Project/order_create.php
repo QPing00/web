@@ -30,8 +30,10 @@ include 'session.php';
 
         $usernameEr = $username_post = "";
         $product_IDEr = $quantityEr = array();
+        $row_num = isset($_POST['row_num']) ? $_POST['row_num'] : 1;
 
-        if ($_POST && isset($_POST['save'])) {
+
+        if (isset($_POST['save'])) {
 
             try {
                 $summary_query = "INSERT INTO order_summary SET username=:username, order_date_time=:order_date_time";
@@ -57,20 +59,20 @@ include 'session.php';
                 // used to validate the selected product IDs and corresponding quantities that the user has submitted in the form
                 // iterates through the selected products and quantities and checks for various validation conditions
                 // such as whether a product has been selected, whether different products have been selected in the same order, and whether quantities are valid.
-                for ($k = 0; $k < count($product_ID_post); $k++) {
+                for ($k = 0; $k < count($_POST["product_ID"]); $k++) {
                     $product_IDEr[$k] = "";
                     $quantityEr[$k] = "";
-                    if ($product_ID_post == "" && $quantity_post !== "") {
+                    if ($_POST["product_ID"][$k] == "" && $_POST["quantity"][$k] !== "") {
                         $product_IDEr[$k] = "Please select a product.";
                         $flag = false;
                     } /*else if (sizeof($product_duplicate) != sizeof($_POST["product_ID"])) {
                         $product_IDEr[$k] = "Please select different product.";
                         $flag = false; 
                     }*/
-                    if ($product_ID_post !== "" && $quantity_post == "") {
+                    if ($_POST["product_ID"][$k] !== "" && $_POST["quantity"][$k] == "") {
                         $quantityEr[$k] = "Please fill in the quantity.";
                         $flag = false;
-                    } else if ($quantity_post[$k] <= 0) {
+                    } else if ($_POST["quantity"][$k] <= 0 && $_POST["quantity"][$k] !== "") {
                         $quantityEr[$k] = "Quantity must be greater than 0.";
                         $flag = false;
                     }
@@ -108,9 +110,10 @@ include 'session.php';
 
                         if ($resultFlag) {
                             echo "<div class='alert alert-success'>Record was saved.</div>";
-                            $username_post = "";
-                            for ($n = 0; $n < count($product_ID_post); $n++) {
-                                $product_ID_post[$n] = $quantity_post[$n] = '';
+                            $_POST['username'] = "";
+                            $row_num = 1;
+                            for ($n = 0; $n < count($_POST["product_ID"]); $n++) {
+                                $_POST["product_ID"][$n] = $_POST["quantity"][$n] = '';
                             }
                         } else {
                             echo "<div class='alert alert-danger'>Unable to save record.</div>";
@@ -145,117 +148,117 @@ include 'session.php';
         ?>
 
         <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
+            <table class='table table-hover table-responsive table-bordered'>
 
-            <div class="row align-items-center">
-                <p class="mb-0">Select Number of Rows:</p>
-                <div class="col-md">
-                    <select class="form-select mt-1" name="row_num">
-                        <?php
-                        $row_num = $_POST['row_num'];
-                        for ($r = 1; $r <= 10; $r++) {
-                            $selected = ($r == $row_num) ? 'selected' : '';
-                            echo "<option value='$r' $selected>$r</option>";
-                        }
-                        ?>
-                    </select>
+                <?php $username_set = isset($_POST["username"]) ? $_POST["username"] : ''; ?>
+                <div class="row align-items-center">
+                    <p class="mb-0">Customer:</p>
+                    <div class="col-md">
+                        <select class="form-select" name="username">
+                            <option value="">Select username</option>
+                            <?php
+
+                            while ($row = $selectCustomer_stmt->fetch(PDO::FETCH_ASSOC)) {
+
+                                extract($row);
+
+                                $selected = ($username == $username_set) ? 'selected' : '';
+                                echo "<option value='$username' $selected>$first_name $last_name ($username)</option>";
+                            }
+                            ?>
+                        </select>
+                        <div class='text-danger'>
+                            <?php echo $usernameEr; ?>
+                        </div>
+                    </div>
                 </div>
-                <div class="col-md">
-                    <input type="submit" value="Confirm" name="row_confirm" class="btn btn-warning btn-block" />
+
+                <br>
+
+                <div class="row align-items-center">
+                    <p class="mb-0">Select Number of Rows:</p>
+                    <div class="col-md">
+                        <select class="form-select mt-1" name="row_num">
+                            <?php
+                            for ($r = 1; $r <= 10; $r++) {
+                                $selected = ($r == $row_num) ? 'selected' : '';
+                                echo "<option value='$r' $selected>$r</option>";
+                            }
+                            ?>
+                        </select>
+                    </div>
+                    <div class="col-md">
+                        <input type="submit" value="Confirm" name="row_confirm" class="btn btn-warning btn-block" />
+                    </div>
                 </div>
-            </div>
-        </form>
 
-        <br>
+                <br>
 
-        <?php
+                <?php
 
-        if ($_POST && isset($row_num)) {
-
-        ?>
-            <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
-
-
-                <table class='table table-hover table-responsive table-bordered'>
+                // Outer Loop (Form Loop)
+                // generate rows for selecting products and quantities
+                for ($i = 0; $i < $row_num; $i++) {
+                    $product_ID_post = isset($_POST["product_ID"][$i]) ? $_POST["product_ID"][$i] : '';
+                    $quantity_post = isset($_POST["quantity"][$i]) ? $_POST["quantity"][$i] : '';
+                ?>
                     <tr>
-                        <td>Customer</td>
-                        <td colspan=3>
-                            <select class="form-select" name="username">
-                                <option value="">Select username</option>
+                        <td>Product
+                            <?php echo $i + 1 ?>
+                        </td>
+                        <td>
+                            <select class="form-select" name="product_ID[]">
+                                <option value="">Select product</option>
                                 <?php
 
-                                while ($row = $selectCustomer_stmt->fetch(PDO::FETCH_ASSOC)) {
+                                // Inner Loop (Product Selection Loop)
+                                // This loop is inside the product selection column. 
+                                // It iterates through the list of available products ($productID_array) and generates <option> elements within the <select> dropdown. 
+                                // The loop generates as many options as there are products in the array.
+                                for ($j = 0; $j < count($productID_array); $j++) {
+                                    $selected = (isset($product_ID_post[$i]) && $productID_array[$j] == $product_ID_post[$i]) ? 'selected' : '';
 
-                                    extract($row);
-
-                                    $selected = ($username == $username_post) ? 'selected' : '';
-                                    echo "<option value='$username' $selected>$first_name $last_name ($username)</option>";
+                                    if ($promotionPrice_array[$j] > 0) {
+                                        echo "<option value='$productID_array[$j]' $selected>$productID_array[$j] $productName_array[$j] (RM$price_array[$j] -> RM$promotionPrice_array[$j])</option>";
+                                    } else {
+                                        echo "<option value='$productID_array[$j]' $selected>$productID_array[$j] $productName_array[$j] (RM$price_array[$j])</option>";
+                                    }
                                 }
+
+                                // to reuse the prepared statement
+                                $selectProduct_stmt->closeCursor();
                                 ?>
                             </select>
                             <div class='text-danger'>
-                                <?php echo $usernameEr; ?>
+                                <?php if (!empty($product_IDEr[$i])) {
+                                    echo $product_IDEr[$i];
+                                } ?>
+                            </div>
+                        </td>
+                        <td>Quantity</td>
+                        <td><input type='number' name='quantity[]' class='form-control' value="<?php echo isset($quantity_post[$i]) ? $quantity_post[$i] : ''; ?>" />
+                            <div class='text-danger'>
+                                <?php if (!empty($quantityEr[$i])) {
+                                    echo $quantityEr[$i];
+                                } ?>
                             </div>
                         </td>
                     </tr>
+                <?php } ?>
 
-                    <?php
-                    // Outer Loop (Form Loop)
-                    // generate rows for selecting products and quantities
-                    for ($i = 0; $i < $row_num; $i++) {
-                    ?>
-                        <tr>
-                            <td>Product
-                                <?php echo $i + 1 ?>
-                            </td>
-                            <td>
-                                <select class="form-select" name="product_ID[]">
-                                    <option value="">Select product</option>
-                                    <?php
+                <tr>
+                    <td></td>
+                    <td colspan=3>
+                        <input type='submit' value='Save' name='save' class='btn btn-primary' />
+                    </td>
+                </tr>
+                <?php //} 
+                ?>
+            </table>
 
-                                    // Inner Loop (Product Selection Loop)
-                                    // This loop is inside the product selection column. 
-                                    // It iterates through the list of available products ($productID_array) and generates <option> elements within the <select> dropdown. 
-                                    // The loop generates as many options as there are products in the array.
-                                    for ($j = 0; $j < count($productID_array); $j++) {
-                                        $selected = (isset($product_ID_post[$i]) && $productID_array[$j] == $product_ID_post[$i]) ? 'selected' : '';
+        </form>
 
-                                        if ($promotionPrice_array[$j] > 0) {
-                                            echo "<option value='$productID_array[$j]' $selected>$productID_array[$j] $productName_array[$j] (RM$price_array[$j] -> RM$promotionPrice_array[$j])</option>";
-                                        } else {
-                                            echo "<option value='$productID_array[$j]' $selected>$productID_array[$j] $productName_array[$j] (RM$price_array[$j])</option>";
-                                        }
-                                    }
-
-                                    // to reuse the prepared statement
-                                    $selectProduct_stmt->closeCursor();
-                                    ?>
-                                </select>
-                                <div class='text-danger'>
-                                    <?php if (!empty($product_IDEr[$i])) {
-                                        echo $product_IDEr[$i];
-                                    } ?>
-                                </div>
-                            </td>
-                            <td>Quantity</td>
-                            <td><input type='number' name='quantity[]' class='form-control' value="<?php echo isset($quantity_post[$i]) ? $quantity_post[$i] : ''; ?>" />
-                                <div class='text-danger'>
-                                    <?php if (!empty($quantityEr)) {
-                                        echo $quantityEr[$i];
-                                    } ?>
-                                </div>
-                            </td>
-                        </tr>
-                    <?php } ?>
-
-                    <tr>
-                        <td></td>
-                        <td colspan=3>
-                            <input type='submit' value='Save' name='save' class='btn btn-primary' />
-                        </td>
-                    </tr>
-                </table>
-            </form>
-        <?php } ?>
+        <br>
 
     </div> <!-- end .container -->
 
