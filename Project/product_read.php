@@ -43,7 +43,7 @@ include 'session.php';
         // include database connection
         include 'config/database.php';
 
-        $query = "SELECT id, name, category_id, description, price FROM products ORDER BY id ASC";
+        $query = "SELECT id, name, category_id, description, price, promotion_price FROM products ORDER BY id ASC";
 
         if ($_GET) {
             $search = $_GET['search'];
@@ -52,7 +52,7 @@ include 'session.php';
                 echo "<div class='alert alert-danger'>Please enter a product keyword</div>";
             }
 
-            $query = "SELECT id, name, category_id, description, price FROM products WHERE 
+            $query = "SELECT id, name, category_id, description, price, promotion_price FROM products WHERE 
             name LIKE '%$search%'
             ORDER BY id ASC";
         }
@@ -77,9 +77,9 @@ include 'session.php';
             echo "<tr>";
             echo "<th>ID</th>";
             echo "<th>Name</th>";
-            echo "<th>Category ID</th>";
+            echo "<th>Cat. ID</th>";
             echo "<th>Description</th>";
-            echo "<th>Price</th>";
+            echo "<th>Product Price</th>";
             echo "<th>Action</th>";
             echo "</tr>";
 
@@ -96,14 +96,19 @@ include 'session.php';
                 echo "<td>{$id}</td>";
                 echo "<td>{$name}</td>";
                 echo "<td>{$category_id}</td>";
-                echo "<td>{$description}</td>";
-                echo "<td>{$price}</td>";
+                echo "<td>{$description}</p></td>";
+
+                $table_price = 'RM' . $price;
+                if ($promotion_price > 0) {
+                    $table_price = '<span class="text-decoration-line-through">' . 'RM' . $price . '</span>' . ' RM' . $promotion_price;
+                }
+                echo "<td>$table_price</td>";
                 echo "<td>";
                 // read one record
                 echo "<a href='product_read_one.php?id={$id}' class='btn btn-info' style='margin-right: 0.5em;'>Read</a>";
 
                 // we will use this links on next part of this post
-                echo "<a href='update.php?id={$id}' class='btn btn-primary' style='margin-right: 0.5em;'>Edit</a>";
+                echo "<a href='product_update.php?id={$id}' class='btn btn-primary' style='margin-right: 0.5em;'>Edit</a>";
 
                 // we will use this links on next part of this post
                 echo "<a href='#' onclick='delete_user({$id});'  class='btn btn-danger'>Delete</a>";
