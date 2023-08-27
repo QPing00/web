@@ -20,7 +20,7 @@
                 <a class="nav-link" href="customer_read.php">Customers</a>
                 <a class="nav-link" href="product_read.php">Products</a>
                 <a class="nav-link" href="categories.php">Category</a>
-                <a class="nav-link" href="order_create.php">Order Create</a>
+                <a class="nav-link" href="order_read.php">Order</a>
             </div>
             <div class="ml-auto">
                 <a class="btn btn-secondary" href="logout.php">Logout</a>
