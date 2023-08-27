@@ -33,10 +33,6 @@ include 'session.php';
             // include database connection
             include 'config/database.php';
             try {
-                // insert query
-                $query = "INSERT INTO customers SET username=:username, email=:email, password=:password, first_name=:first_name, last_name=:last_name, gender=:gender, date_of_birth=:date_of_birth, account_status=:account_status, registration_date_and_time=:registration_date_and_time";
-                // prepare query for execution
-                $stmt = $con->prepare($query);
                 // posted values
                 $username = strip_tags($_POST['username']);
                 $email = strip_tags($_POST['email']);
@@ -51,21 +47,6 @@ include 'session.php';
 
                 $password = password_hash($password_ori, PASSWORD_DEFAULT);
 
-                // bind the parameters
-                $stmt->bindParam(':username', $username);
-                $stmt->bindParam(':email', $email);
-                $stmt->bindParam(':password', $password);
-                $stmt->bindParam(':first_name', $first_name);
-                $stmt->bindParam(':last_name', $last_name);
-                $stmt->bindParam(':gender', $gender);
-                $stmt->bindParam(':date_of_birth', $date_of_birth);
-                $stmt->bindParam(':account_status', $account_status);
-
-                // specify when this record was inserted to the database
-                $registration_date_and_time = date('Y-m-d H:i:s');
-                $stmt->bindParam(':registration_date_and_time', $registration_date_and_time);
-
-                // Execute the query
 
                 $flag = true;
 
@@ -77,10 +58,30 @@ include 'session.php';
                     $flag = false;
                 }
 
+                $query_username = "SELECT * FROM customers WHERE username = :username";
+                $stmt_username = $con->prepare($query_username);
+                $stmt_username->bindParam(':username', $username);
+                $stmt_username->execute();
+                $num_username = $stmt_username->rowCount();
+                if ($num_username > 0) {
+                    $usernameEr = "Username is already in use";
+                    $flag = false;
+                }
+
                 if (empty($email)) {
                     $emailEr = 'Please enter an email address';
                 } else if (substr_count($email, '@') !== 1) {
                     $emailEr = 'Email format incorrect';
+                }
+
+                $query_email = "SELECT * FROM customers WHERE email = :email";
+                $stmt_email = $con->prepare($query_email);
+                $stmt_email->bindParam(':email', $email);
+                $stmt_email->execute();
+                $num_email = $stmt_email->rowCount();
+                if ($num_email > 0) {
+                    $emailEr = "Email is already in use";
+                    $flag = false;
                 }
 
                 if (empty($password_ori)) {
@@ -124,7 +125,24 @@ include 'session.php';
                     $flag = false;
                 }
 
-                if ($flag == true) {
+                if ($flag) {
+                    $query = "INSERT INTO customers SET username=:username, email=:email, password=:password, first_name=:first_name, last_name=:last_name, gender=:gender, date_of_birth=:date_of_birth, account_status=:account_status, registration_date_and_time=:registration_date_and_time";
+                    $stmt = $con->prepare($query);
+
+                    // bind the parameters
+                    $stmt->bindParam(':username', $username);
+                    $stmt->bindParam(':email', $email);
+                    $stmt->bindParam(':password', $password);
+                    $stmt->bindParam(':first_name', $first_name);
+                    $stmt->bindParam(':last_name', $last_name);
+                    $stmt->bindParam(':gender', $gender);
+                    $stmt->bindParam(':date_of_birth', $date_of_birth);
+                    $stmt->bindParam(':account_status', $account_status);
+
+                    // specify when this record was inserted to the database
+                    $registration_date_and_time = date('Y-m-d H:i:s');
+                    $stmt->bindParam(':registration_date_and_time', $registration_date_and_time);
+
                     if ($stmt->execute()) {
                         echo "<div class='alert alert-success'>Record was saved.</div>";
                         $username = $email = $password_ori = $confirm_password = $first_name = $last_name = $gender = $date_of_birth = $account_status = "";
