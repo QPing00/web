@@ -26,7 +26,6 @@ include 'session.php';
         <?php
 
         include 'config/database.php';
-        date_default_timezone_set('asia/Kuala_Lumpur');
 
         $usernameEr = $username_post = "";
         $product_IDEr = $quantityEr = array();
@@ -53,22 +52,29 @@ include 'session.php';
 
                 $product_ID_post = $_POST["product_ID"];
                 $quantity_post = $_POST["quantity"];
-                /* $product_duplicate = array_unique($_POST["product_ID"]); */
+                var_dump($_POST["product_ID"]);
+                var_dump($_POST["quantity"]);
 
                 // Product ID Validation Loop
                 // used to validate the selected product IDs and corresponding quantities that the user has submitted in the form
                 // iterates through the selected products and quantities and checks for various validation conditions
                 // such as whether a product has been selected, whether different products have been selected in the same order, and whether quantities are valid.
+                $atLeastOneProduct = false;
+                $product_duplicate = array_unique($_POST["product_ID"]);
                 for ($k = 0; $k < count($_POST["product_ID"]); $k++) {
                     $product_IDEr[$k] = "";
                     $quantityEr[$k] = "";
+
+                    if (!$atLeastOneProduct && sizeof($product_duplicate) == 1) {
+                        $product_IDEr[$k] = "Please select at least one product.";
+                        $flag = false;
+                    }
+
                     if ($_POST["product_ID"][$k] == "" && $_POST["quantity"][$k] !== "") {
                         $product_IDEr[$k] = "Please select a product.";
                         $flag = false;
-                    } /*else if (sizeof($product_duplicate) != sizeof($_POST["product_ID"])) {
-                        $product_IDEr[$k] = "Please select different product.";
-                        $flag = false; 
-                    }*/
+                    }
+
                     if ($_POST["product_ID"][$k] !== "" && $_POST["quantity"][$k] == "") {
                         $quantityEr[$k] = "Please fill in the quantity.";
                         $flag = false;
@@ -201,12 +207,14 @@ include 'session.php';
                 for ($i = 0; $i < $row_num; $i++) {
                     $product_ID_post = isset($_POST["product_ID"][$i]) ? $_POST["product_ID"][$i] : '';
                     $quantity_post = isset($_POST["quantity"][$i]) ? $_POST["quantity"][$i] : '';
+
                 ?>
                     <tr>
                         <td>Product
                             <?php echo $i + 1 ?>
                         </td>
                         <td>
+                            <?php print_r($product_ID_post); ?>
                             <select class="form-select" name="product_ID[]">
                                 <option value="">Select product</option>
                                 <?php
@@ -216,7 +224,7 @@ include 'session.php';
                                 // It iterates through the list of available products ($productID_array) and generates <option> elements within the <select> dropdown. 
                                 // The loop generates as many options as there are products in the array.
                                 for ($j = 0; $j < count($productID_array); $j++) {
-                                    $selected = (isset($product_ID_post[$i]) && $productID_array[$j] == $product_ID_post[$i]) ? 'selected' : '';
+                                    $selected = (isset($product_ID_post) && $productID_array[$j] == $product_ID_post) ? 'selected' : '';
 
                                     if ($promotionPrice_array[$j] > 0) {
                                         echo "<option value='$productID_array[$j]' $selected>$productID_array[$j] $productName_array[$j] (RM$price_array[$j] -> RM$promotionPrice_array[$j])</option>";
@@ -235,8 +243,11 @@ include 'session.php';
                                 } ?>
                             </div>
                         </td>
+
                         <td>Quantity</td>
-                        <td><input type='number' name='quantity[]' class='form-control' value="<?php echo isset($quantity_post[$i]) ? $quantity_post[$i] : ''; ?>" />
+                        <td>
+                            <?php print_r($quantity_post); ?>
+                            <input type='number' name='quantity[]' class='form-control' value="<?php echo isset($quantity_post) ? $quantity_post : ''; ?>" />
                             <div class='text-danger'>
                                 <?php if (!empty($quantityEr[$i])) {
                                     echo $quantityEr[$i];
@@ -250,10 +261,9 @@ include 'session.php';
                     <td></td>
                     <td colspan=3>
                         <input type='submit' value='Save' name='save' class='btn btn-primary' />
+                        <a href='order_read.php' class='btn btn-danger'>Back to read orders</a>
                     </td>
                 </tr>
-                <?php //} 
-                ?>
             </table>
 
         </form>
