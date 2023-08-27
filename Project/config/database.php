@@ -4,6 +4,7 @@ $host = "localhost";
 $db_name = "LingQP";
 $username = "LingQP";
 $password = "kVNAy8GK7Lf(l2E9";
+date_default_timezone_set('asia/Kuala_Lumpur');
 try {
     $con = new
         PDO(
