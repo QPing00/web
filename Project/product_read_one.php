@@ -35,7 +35,7 @@ include 'session.php';
         // read current record's data
         try {
             // prepare select query
-            $query = "SELECT p.id, p.name, p.description, p.price, c.category_name FROM products p
+            $query = "SELECT p.id, p.name, p.description, p.price, p.promotion_price, c.category_name FROM products p
             LEFT JOIN categories c ON p.category_id = c.category_id 
             WHERE p.id = ?";
 
@@ -53,7 +53,10 @@ include 'session.php';
             // values to fill up our form
             $name = $row['name'];
             $description = $row['description'];
-            $price = $row['price'];
+            $table_price = $row['price'];
+            if ($row['promotion_price'] > 0) {
+                $table_price = '<span class="text-decoration-line-through">' . $row['price'] . '</span>' . ' ' . $row['promotion_price'];
+            }
             $category_name = $row['category_name'];
         }
 
@@ -88,8 +91,10 @@ include 'session.php';
                 <td><?php echo htmlspecialchars($description, ENT_QUOTES);  ?></td>
             </tr>
             <tr>
-                <td>Price</td>
-                <td><?php echo htmlspecialchars($price, ENT_QUOTES);  ?></td>
+                <td>Price (RM)</td>
+                <!-- <td><?php //echo htmlspecialchars($table_price, ENT_QUOTES);  
+                            ?></td> -->
+                <td><?php echo $table_price;  ?></td>
             </tr>
             <tr>
                 <td>Category</td>
