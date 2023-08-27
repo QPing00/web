@@ -33,10 +33,6 @@ include 'session.php';
         if ($_POST) {
 
             try {
-                // insert query
-                $query = "INSERT INTO products SET name=:name, category_id=:category_id, description=:description, price=:price, promotion_price=:promotion_price, manufacture_date=:manufacture_date, expired_date=:expired_date, created=:created";
-                // prepare query for execution
-                $stmt = $con->prepare($query);
                 // posted values
                 $name = strip_tags($_POST['name']);
                 $category = strip_tags($_POST['category']);
@@ -46,18 +42,6 @@ include 'session.php';
                 $manufacture_date = strip_tags($_POST['manufacture_date']);
                 $expired_date = strip_tags($_POST['expired_date']);
 
-                // bind the parameters
-                $stmt->bindParam(':name', $name);
-                $stmt->bindParam(':category_id', $category);
-                $stmt->bindParam(':description', $description);
-                $stmt->bindParam(':price', $price);
-                $stmt->bindParam(':promotion_price', $promotion_price);
-                $stmt->bindParam(':manufacture_date', $manufacture_date);
-                $stmt->bindParam(':expired_date', $expired_date);
-                // specify when this record was inserted to the database
-                $created = date('Y-m-d H:i:s');
-                $stmt->bindParam(':created', $created);
-
                 $flag = true;
 
                 // Execute the query
@@ -66,7 +50,7 @@ include 'session.php';
                     $flag = false;
                 }
 
-                if (!is_numeric($category[0])) {
+                if (empty($category)) {
                     $categoryEr = "Please select a category";
                     $flag = false;
                 }
@@ -84,9 +68,16 @@ include 'session.php';
                     $flag = false;
                 }
 
-                if (!empty($promotion_price) && !is_numeric($promotion_price)) {
-                    $promotion_priceEr = "Product price must be a number";
-                    $flag = false;
+                if (!empty($promotion_price)) {
+                    if (!is_numeric($promotion_price)) {
+                        $promotion_priceEr = "Product price must be a number";
+                        $flag = false;
+                    } else if ($promotion_price >= $price) {
+                        $promotion_priceEr = "Promotion price must be cheaper than original price";
+                        $flag = false;
+                    }
+                } else {
+                    $promotion_price = 0;
                 }
 
                 if (empty($manufacture_date)) {
@@ -99,17 +90,29 @@ include 'session.php';
                     $flag = false;
                 }
 
-                if (!empty($promotion_price) && $promotion_price >= $price) {
-                    $promotion_priceEr = "Promotion price must be cheaper than original price";
-                    $flag = false;
-                }
-
                 if (strtotime($manufacture_date) >= strtotime($expired_date)) {
                     $expired_dateEr = "Expired date must be earlier than manufacture date";
                     $flag = false;
                 }
 
                 if ($flag == true) {
+                    // insert query
+                    $query = "INSERT INTO products SET name=:name, category_id=:category_id, description=:description, price=:price, promotion_price=:promotion_price, manufacture_date=:manufacture_date, expired_date=:expired_date, created=:created";
+                    // prepare query for execution
+                    $stmt = $con->prepare($query);
+
+                    // bind the parameters
+                    $stmt->bindParam(':name', $name);
+                    $stmt->bindParam(':category_id', $category);
+                    $stmt->bindParam(':description', $description);
+                    $stmt->bindParam(':price', $price);
+                    $stmt->bindParam(':promotion_price', $promotion_price);
+                    $stmt->bindParam(':manufacture_date', $manufacture_date);
+                    $stmt->bindParam(':expired_date', $expired_date);
+                    // specify when this record was inserted to the database
+                    $created = date('Y-m-d H:i:s');
+                    $stmt->bindParam(':created', $created);
+
                     if ($stmt->execute()) {
                         // if $stmt->execute() == true - not problem with above sql 
                         echo "<div class='alert alert-success'>Record was saved.</div>";
@@ -138,10 +141,10 @@ include 'session.php';
                     </td>
                 </tr>
                 <tr>
-                    <td>Categories</td>
+                    <td>Category</td>
                     <td>
                         <select class="form-select" aria-label="Default select example" name="category" id="category">
-                            <option>Select a Category</option>
+                            <option value="">Select a Category</option>
                             <?php
                             $query = "SELECT category_id, category_name FROM categories";
                             $stmt = $con->prepare($query);
