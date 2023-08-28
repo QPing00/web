@@ -30,11 +30,10 @@ include 'session.php';
         include 'config/database.php';
 
         try {
-            $query = "SELECT od.order_id, os.username, c.first_name, c.last_name, os.order_date_time
+            $query = "SELECT os.order_id, os.username, c.first_name, c.last_name, os.order_date_time
             FROM order_summary os
-            INNER JOIN order_details od ON os.order_id = od.order_id
             INNER JOIN customers c ON os.username = c.username 
-            WHERE od.order_id = ?";
+            WHERE os.order_id = ?";
             $stmt = $con->prepare($query);
             $stmt->bindParam(1, $order_id_check);
             $stmt->execute();
