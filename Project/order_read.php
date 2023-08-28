@@ -64,7 +64,7 @@ include 'session.php';
             WHERE os.username LIKE '%$search%'
             OR c.first_name LIKE '%$search%'
             OR c.last_name LIKE '%$search%'
-            OR os.order_id LIKE '$search' 
+            OR os.order_id LIKE $search
             GROUP BY os.order_id
             ORDER BY os.order_id DESC";
         }
