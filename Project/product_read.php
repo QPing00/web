@@ -98,11 +98,11 @@ include 'session.php';
                 echo "<td>{$category_id}</td>";
                 echo "<td>{$description}</p></td>";
 
-                $table_price = 'RM' . $price;
+                $table_price = 'RM' . number_format($price, 2);
                 if ($promotion_price > 0) {
-                    $table_price = '<span class="text-decoration-line-through">' . 'RM' . $price . '</span>' . ' RM' . $promotion_price;
+                    $table_price = '<span class="text-decoration-line-through">' . 'RM' . number_format($price, 2) . '</span>' . ' RM' . number_format($promotion_price, 2);
                 }
-                echo "<td>$table_price</td>";
+                echo "<td> $table_price </td>";
                 echo "<td>";
                 // read one record
                 echo "<a href='product_read_one.php?id={$id}' class='btn btn-info' style='margin-right: 0.5em;'>Read</a>";
