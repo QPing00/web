@@ -163,10 +163,6 @@ include 'session.php';
                     }
                 }
 
-                if (!empty($password_new_up) && !empty($password_old_up)) {
-                }
-
-
                 if (empty($first_name_up)) {
                     $first_nameEr = "Please enter your first name";
                     $flag = false;
