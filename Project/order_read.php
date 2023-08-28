@@ -40,11 +40,10 @@ include 'session.php';
         // include database connection
         include 'config/database.php';
 
-        $query = "SELECT os.order_id, os.username, c.first_name, c.last_name, os.order_date_time, SUM(p.price*od.quantity) AS total 
+        $query = "SELECT os.order_id, os.username, c.first_name, c.last_name, os.order_date_time
         FROM order_summary os
         INNER JOIN order_details od ON os.order_id = od.order_id
         INNER JOIN customers c ON os.username = c.username
-        INNER JOIN products p ON od.product_id = p.id
         GROUP BY os.order_id
         ORDER BY os.order_id DESC";
 
@@ -58,11 +57,10 @@ include 'session.php';
                 echo "<div class='alert alert-danger'>Please enter a keyword</div>";
             }
 
-            $query = "SELECT os.order_id, os.username, c.first_name, c.last_name, os.order_date_time, SUM(p.price*od.quantity) AS total 
+            $query = "SELECT os.order_id, os.username, c.first_name, c.last_name, os.order_date_time
             FROM order_summary os
             INNER JOIN order_details od ON os.order_id = od.order_id
             INNER JOIN customers c ON os.username = c.username
-            INNER JOIN products p ON od.product_id = p.id
             WHERE os.username LIKE '%$search%'
             OR c.first_name LIKE '%$search%'
             OR c.last_name LIKE '%$search%'
@@ -91,6 +89,23 @@ include 'session.php';
             // retrieve our table contents
             while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
                 extract($row);
+
+                $price_query = "SELECT od.order_id, od.product_id, od.quantity, p.price, p.promotion_price
+                    FROM order_details od
+                    INNER JOIN products p ON od.product_id = p.id
+                    WHERE od.order_id = :order_id";
+                $price_stmt = $con->prepare($price_query);
+                $price_stmt->bindParam(':order_id', $order_id);
+                $price_stmt->execute();
+
+                $total = 0;
+
+                while ($price_row = $price_stmt->fetch(PDO::FETCH_ASSOC)) {
+                    extract($price_row);
+                    $price_select = $promotion_price > 0 ? $promotion_price * $quantity : $price * $quantity;
+                    $total += $price_select;
+                }
+
                 echo "<tr>";
                 echo "<td>{$order_id}</td>";
                 echo "<td>{$username}</td>";
