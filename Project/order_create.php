@@ -38,8 +38,8 @@ include 'session.php';
                 $summary_query = "INSERT INTO order_summary SET username=:username, order_date_time=:order_date_time";
                 $summary_stmt = $con->prepare($summary_query);
                 $username_post = $_POST['username'];
-                $summary_stmt->bindParam(':username', $username_post);
                 $order_date_time = date('Y-m-d H:i:s');
+                $summary_stmt->bindParam(':username', $username_post);
                 $summary_stmt->bindParam(':order_date_time', $order_date_time);
 
                 $flag = true;
