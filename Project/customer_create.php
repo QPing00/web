@@ -27,11 +27,13 @@ include 'session.php';
         <?php
 
         $usernameEr = $emailEr = $passwordEr = $confirm_passwordEr = $first_nameEr = $last_nameEr = $genderEr = $date_of_birthEr = $account_statusEr = '';
+        $file_upload_error_messages = "";
 
+        // include database connection
+        include 'config/database.php';
 
         if ($_POST) {
-            // include database connection
-            include 'config/database.php';
+
             try {
                 // posted values
                 $username = strip_tags($_POST['username']);
@@ -47,8 +49,52 @@ include 'session.php';
 
                 $password = password_hash($password_ori, PASSWORD_DEFAULT);
 
+                $image = !empty($_FILES["image"]["name"]) ? sha1_file($_FILES['image']['tmp_name']) . "-" . basename($_FILES["image"]["name"]) : "";
+                $image = strip_tags($image);
+                $target_file = "";
 
                 $flag = true;
+
+                if ($image) {
+
+                    // upload to file to folder
+                    $target_directory = "uploads/"; // folder name
+                    $target_file = $target_directory . $image; // the final path: folder name . 乱码 
+                    $file_type = pathinfo($target_file, PATHINFO_EXTENSION); //pathinfo() find out the final extention of the file name
+
+                    // start validating the submitted file
+                    // make sure that file is a real image
+                    $check = getimagesize($_FILES["image"]["tmp_name"]);
+                    if ($check !== false) {
+                        // submitted file is an image
+
+                        // make sure certain file types are allowed
+                        $allowed_file_types = array("jpg", "jpeg", "png", "gif");
+                        if (!in_array($file_type, $allowed_file_types)) {
+                            $file_upload_error_messages .= "<div>Only JPG, JPEG, PNG, GIF files are allowed.</div>";
+                        }
+
+                        // make sure file does not exist in the server
+                        // check if a file with the same name as $target_file already exists in the target directory ("uploads/").
+                        if (file_exists($target_file)) {
+                            $file_upload_error_messages = "<div>Image already exists. Try to change file name.</div>";
+                        }
+
+                        // make sure submitted file is not too large, can't be larger than 512KB (524288 Bytes (in binary))
+                        if ($_FILES['image']['size'] > (524288)) {
+                            $file_upload_error_messages .= "<div>Image must be less than 512 KB in size.</div>";
+                        }
+
+                        // check if the image is square
+                        $image_width = $check[0];
+                        $image_height = $check[1];
+                        if ($image_width !== $image_height) {
+                            $file_upload_error_messages .= "<div>Image must be in square.</div>";
+                        }
+                    } else {
+                        $file_upload_error_messages .= "<div>Submitted file is not an image.</div>";
+                    }
+                }
 
                 if (empty($username)) {
                     $usernameEr = "Please enter the username";
@@ -118,6 +164,9 @@ include 'session.php';
                 if (empty($date_of_birth)) {
                     $date_of_birthEr = "Please select your date of birth";
                     $flag = false;
+                } elseif (strtotime($date_of_birth) > strtotime(date("Y/m/d"))) {
+                    $date_of_birthEr = "Birthdate must be no later than today's date";
+                    $flag = false;
                 }
 
                 if (empty($account_status)) {
@@ -125,8 +174,8 @@ include 'session.php';
                     $flag = false;
                 }
 
-                if ($flag) {
-                    $query = "INSERT INTO customers SET username=:username, email=:email, password=:password, first_name=:first_name, last_name=:last_name, gender=:gender, date_of_birth=:date_of_birth, account_status=:account_status, registration_date_and_time=:registration_date_and_time";
+                if ($flag && empty($file_upload_error_messages)) {
+                    $query = "INSERT INTO customers SET username=:username, email=:email, password=:password, first_name=:first_name, last_name=:last_name, gender=:gender, date_of_birth=:date_of_birth, registration_date_and_time=:registration_date_and_time, account_status=:account_status, image=:image";
                     $stmt = $con->prepare($query);
 
                     // bind the parameters
@@ -138,6 +187,7 @@ include 'session.php';
                     $stmt->bindParam(':gender', $gender);
                     $stmt->bindParam(':date_of_birth', $date_of_birth);
                     $stmt->bindParam(':account_status', $account_status);
+                    $stmt->bindParam(':image', $target_file);
 
                     // specify when this record was inserted to the database
                     $registration_date_and_time = date('Y-m-d H:i:s');
@@ -146,9 +196,27 @@ include 'session.php';
                     if ($stmt->execute()) {
                         echo "<div class='alert alert-success'>Record was saved.</div>";
                         $username = $email = $password_ori = $confirm_password = $first_name = $last_name = $gender = $date_of_birth = $account_status = "";
+                        if ($image) {
+                            // make sure the 'uploads' folder exists
+                            // if not, create it
+                            if (!is_dir($target_directory)) {
+                                mkdir($target_directory, 0777, true);
+                            }
+
+                            // it means there are no errors, so try to upload the file
+                            if (move_uploaded_file($_FILES["image"]["tmp_name"], $target_file)) {
+                                // move_uploaded_file(filename, destination)
+                                // it means photo was uploaded
+                            } else {
+                                echo "<div class='alert alert-danger'>";
+                                echo "<div>Unable to upload photo.</div>";
+                                echo "<div>Update the record to upload photo.</div>";
+                                echo "</div>";
+                            }
+                        }
+                    } else {
+                        echo "<div class='alert alert-danger'>Unable to save record.</div>";
                     }
-                } else {
-                    echo "<div class='alert alert-danger'>Unable to save record.</div>";
                 }
             }
             // show error
@@ -161,8 +229,14 @@ include 'session.php';
 
 
         <!-- html form here where the product information will be entered -->
-        <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
+        <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post" enctype="multipart/form-data">
             <table class='table table-hover table-responsive table-bordered'>
+                <tr>
+                    <td>Photo</td>
+                    <td><input type='file' name='image' />
+                        <div class='text-danger'><?php echo $file_upload_error_messages; ?></div>
+                    </td>
+                </tr>
                 <tr>
                     <td>Username</td>
                     <td><input type='text' name='username' class='form-control' value="<?php echo isset($username) ? $username : ''; ?>" />
