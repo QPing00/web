@@ -42,7 +42,6 @@ include 'session.php';
 
         $query = "SELECT os.order_id, os.username, c.first_name, c.last_name, os.order_date_time
         FROM order_summary os
-        INNER JOIN order_details od ON os.order_id = od.order_id
         INNER JOIN customers c ON os.username = c.username
         GROUP BY os.order_id
         ORDER BY os.order_id DESC";
@@ -59,12 +58,11 @@ include 'session.php';
 
             $query = "SELECT os.order_id, os.username, c.first_name, c.last_name, os.order_date_time
             FROM order_summary os
-            INNER JOIN order_details od ON os.order_id = od.order_id
             INNER JOIN customers c ON os.username = c.username
             WHERE os.username LIKE '%$search%'
             OR c.first_name LIKE '%$search%'
             OR c.last_name LIKE '%$search%'
-            OR os.order_id LIKE $search
+            OR os.order_id LIKE '$search'
             GROUP BY os.order_id
             ORDER BY os.order_id DESC";
         }
@@ -77,7 +75,7 @@ include 'session.php';
         if ($num > 0) {
             echo "<table class='table table-hover table-responsive table-bordered'>";
 
-            echo "<tr>";
+            echo "<tr class='text-center'>";
             echo "<th>Order ID</th>";
             echo "<th>Username</th>";
             echo "<th>Name</th>";
@@ -106,12 +104,12 @@ include 'session.php';
                     $total += $price_select;
                 }
 
-                echo "<tr>";
+                echo "<tr class='text-center'>";
                 echo "<td>{$order_id}</td>";
                 echo "<td>{$username}</td>";
                 echo "<td>$first_name $last_name</td>";
                 echo "<td>{$order_date_time}</td>";
-                echo "<td>RM " . number_format($total, 2) . "</td>";
+                echo "<td class='text-end'>RM " . number_format($total, 2) . "</td>";
 
                 echo "<td>";
                 echo "<a href='order_read_details.php?order_id={$order_id}' class='btn btn-info' style='margin-right: 1em;'>Read</a>";
