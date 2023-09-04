@@ -40,7 +40,7 @@ include 'session.php';
         // include database connection
         include 'config/database.php';
 
-        $query = "SELECT username, email, first_name, last_name, gender, date_of_birth, registration_date_and_time, account_status FROM customers 
+        $query = "SELECT image, username, email, first_name, last_name, registration_date_and_time, account_status FROM customers 
             ORDER BY username ASC";
 
         if ($_GET) {
@@ -50,7 +50,7 @@ include 'session.php';
                 echo "<div class='alert alert-danger'>Please enter a product keyword</div>";
             }
 
-            $query = "SELECT username, email, first_name, last_name, gender, date_of_birth, registration_date_and_time, account_status FROM customers WHERE 
+            $query = "SELECT image, username, email, first_name, last_name, registration_date_and_time, account_status FROM customers WHERE 
             username LIKE '%$search%' OR
             first_name LIKE '%$search%' OR
             last_name LIKE '%$search%'
@@ -76,15 +76,14 @@ include 'session.php';
             echo "<table class='table table-hover table-responsive table-bordered'>"; //start table
 
             //creating our table heading
-            echo "<tr>";
+            echo "<tr class='text-center'>";
+            echo "<th>Image</th>";
             echo "<th>Username</th>";
             echo "<th>Email</th>";
-            echo "<th>First Name</th>";
-            echo "<th>Last Name</th>";
-            echo "<th>Gender</th>";
-            echo "<th>Date of Birth</th>";
-            echo "<th>Registration Date and Time</th>";
+            echo "<th>Name</th>";
+            echo "<th>Registration Date Time</th>";
             echo "<th>Account Status</th>";
+            echo "<th>Action</th>";
             echo "</tr>";
 
 
@@ -96,21 +95,21 @@ include 'session.php';
                 // this will make $row['firstname'] to just $firstname only
                 extract($row);
                 // creating new table row per record
-                echo "<tr>";
+                echo "<tr class='text-center'>";
+                echo "<td>";
+                echo $image == '' ? "<img src = 'image/image_customer.jpg' width = '100' height = '100'>" : "<img src = ' $image ' width = '100' height = '100'>";
+                echo "</td>";
                 echo "<td>{$username}</td>";
                 echo "<td>{$email}</td>";
-                echo "<td>{$first_name}</td>";
-                echo "<td>{$last_name}</td>";
-                echo "<td>{$gender}</td>";
-                echo "<td>{$date_of_birth}</td>";
+                echo "<td>$first_name $last_name</td>";
                 echo "<td>{$registration_date_and_time}</td>";
                 echo "<td>{$account_status}</td>";
                 echo "<td>";
                 // read one record
-                echo "<a href='customer_read_one.php?username={$username}' class='btn btn-info' style='margin-right: 1em;'>Read</a>";
+                echo "<a href='customer_read_one.php?username={$username}' class='btn btn-info' style='margin-right: 0.5em;'>Read</a>";
 
                 // we will use this links on next part of this post
-                echo "<a href='customer_update.php?username={$username}' class='btn btn-primary' style='margin-right: 1em;'>Edit</a>";
+                echo "<a href='customer_update.php?username={$username}' class='btn btn-primary' style='margin-right: 0.5em;'>Edit</a>";
 
                 // we will use this links on next part of this post
                 echo "<a href='#' onclick='delete_user({$username});'  class='btn btn-danger'>Delete</a>";
