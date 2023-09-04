@@ -21,6 +21,7 @@ include 'session.php';
     <div class="container">
         <div class="page-header">
             <h1>Read Product</h1>
+            <br>
         </div>
 
         <!-- PHP read one record will be here -->
@@ -35,7 +36,8 @@ include 'session.php';
         // read current record's data
         try {
             // prepare select query
-            $query = "SELECT p.id, p.name, p.description, p.price, p.promotion_price, c.category_name FROM products p
+            $query = "SELECT p.id, p.image, p.name, p.description, p.price, p.promotion_price, c.category_name, p.manufacture_date, p.expired_date 
+            FROM products p
             LEFT JOIN categories c ON p.category_id = c.category_id 
             WHERE p.id = ?";
 
@@ -51,13 +53,16 @@ include 'session.php';
             $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
             // values to fill up our form
+            $image = $row['image'];
             $name = $row['name'];
             $description = $row['description'];
             $table_price = $row['price'];
             if ($row['promotion_price'] > 0) {
-                $table_price = '<span class="text-decoration-line-through">' . $row['price'] . '</span>' . ' ' . $row['promotion_price'];
+                $table_price = '<span class="text-decoration-line-through">' . number_format($row['price'], 2) . '</span>' . ' ' . number_format($row['promotion_price'], 2);
             }
             $category_name = $row['category_name'];
+            $manufacture_date = $row['manufacture_date'];
+            $expired_date = $row['expired_date'];
         }
 
         /*
@@ -82,6 +87,15 @@ include 'session.php';
         <!-- HTML read one record table will be here -->
         <!--we have our html table here where the record will be displayed-->
         <table class='table table-hover table-responsive table-bordered'>
+            <tr class='text-center'>
+                <td rowspan="8">
+                    <br>
+                    <?php
+                    echo $image == '' ? "<img src = 'image/image_product.jpg' width = '280' height = '280'>" : "<img src = ' $image ' width = '280' height = '280'>";
+                    ?>
+
+                </td>
+            </tr>
             <tr>
                 <td>Name</td>
                 <td><?php echo htmlspecialchars($name, ENT_QUOTES);  ?></td>
@@ -101,12 +115,16 @@ include 'session.php';
                 <td><?php echo htmlspecialchars($category_name, ENT_QUOTES);  ?></td>
             </tr>
             <tr>
-                <td></td>
-                <td>
-                    <a href='product_read.php' class='btn btn-danger'>Back to read products</a>
-                </td>
+                <td>Manufacture Date</td>
+                <td><?php echo htmlspecialchars($manufacture_date, ENT_QUOTES);  ?></td>
+            </tr>
+            <tr>
+                <td>Expired Date</td>
+                <td><?php echo htmlspecialchars($expired_date, ENT_QUOTES);  ?></td>
             </tr>
         </table>
+        <br>
+        <a href='product_read.php' class='btn btn-danger'>Back to read products</a>
 
         <!--
             The ENT_QUOTES flag, when used with the htmlspecialchars() or htmlentities() function, 
