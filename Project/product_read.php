@@ -43,7 +43,10 @@ include 'session.php';
         // include database connection
         include 'config/database.php';
 
-        $query = "SELECT id, name, category_id, description, price, promotion_price FROM products ORDER BY id ASC";
+        $query = "SELECT p.id, p.image, p.name,p.price, p.promotion_price, c.category_name
+        FROM products p
+        INNER JOIN categories c ON p.category_id = c.category_id
+        ORDER BY id ASC";
 
         if ($_GET) {
             $search = $_GET['search'];
@@ -52,13 +55,15 @@ include 'session.php';
                 echo "<div class='alert alert-danger'>Please enter a product keyword</div>";
             }
 
-            $query = "SELECT id, name, category_id, description, price, promotion_price FROM products WHERE 
-            name LIKE '%$search%'
+            $query = "SELECT p.id, p.image, p.name, p.price, p.promotion_price, c.category_name
+            FROM products p
+            INNER JOIN categories c ON p.category_id = c.category_id
+            WHERE name LIKE '%$search%' 
+            OR category_name LIKE '%$search%'
             ORDER BY id ASC";
         }
 
         // delete message prompt will be here
-
 
         $stmt = $con->prepare($query);
         $stmt->execute();
@@ -74,35 +79,36 @@ include 'session.php';
             echo "<table class='table table-hover table-responsive table-bordered'>"; //start table
 
             //creating our table heading
-            echo "<tr>";
+            echo "<tr class='text-center'>";
             echo "<th>ID</th>";
+            echo "<th>Image</th>";
             echo "<th>Name</th>";
-            echo "<th>Cat. ID</th>";
-            echo "<th>Description</th>";
+            echo "<th>Category Name</th>";
             echo "<th>Product Price</th>";
             echo "<th>Action</th>";
             echo "</tr>";
 
 
             // table body will be here
-
             // retrieve our table contents
             while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
                 // extract row
                 // this will make $row['firstname'] to just $firstname only
                 extract($row);
                 // creating new table row per record
-                echo "<tr>";
+                echo "<tr class='text-center'>";
                 echo "<td>{$id}</td>";
+                echo "<td>";
+                echo $image == '' ? "<img src = 'image/image_product.jpg' width = '100' height = '100'>" : "<img src = ' $image ' width = '100' height = '100'>";
+                echo "</td>";
                 echo "<td>{$name}</td>";
-                echo "<td>{$category_id}</td>";
-                echo "<td>{$description}</p></td>";
+                echo "<td>{$category_name}</td>";
 
                 $table_price = 'RM' . number_format($price, 2);
                 if ($promotion_price > 0) {
                     $table_price = '<span class="text-decoration-line-through">' . 'RM' . number_format($price, 2) . '</span>' . ' RM' . number_format($promotion_price, 2);
                 }
-                echo "<td> $table_price </td>";
+                echo "<td class='text-end'> $table_price </td>";
                 echo "<td>";
                 // read one record
                 echo "<a href='product_read_one.php?id={$id}' class='btn btn-info' style='margin-right: 0.5em;'>Read</a>";
