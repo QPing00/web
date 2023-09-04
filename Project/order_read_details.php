@@ -74,11 +74,11 @@ include 'session.php';
         <br>
 
         <?php
-        $details_query = "SELECT od.order_detail_id, od.order_id, od.product_id, od.quantity, p.name, p.price, p.promotion_price
+        $details_query = "SELECT od.order_id, od.product_id, od.quantity, p.id, p.name, p.price, p.promotion_price
         FROM order_details od
         INNER JOIN products p ON od.product_id = p.id
         WHERE od.order_id = :order_id
-        ORDER BY od.order_detail_id ASC";
+        ORDER BY p.id ASC";
         $details_stmt = $con->prepare($details_query);
         $details_stmt->bindParam(':order_id', $order_id);
         $details_stmt->execute();
@@ -86,10 +86,10 @@ include 'session.php';
 
         if ($num > 0) {
             echo "<table class='table table-hover table-responsive table-bordered'>";
-            echo "<tr class='table-light'>";
+            echo "<tr class='table-light text-center'>";
             echo "<th>No.</th>";
-            echo "<th>Order Detail ID</th>";
-            echo "<th>Product</th>";
+            echo "<th>Product ID</th>";
+            echo "<th>Product Name</th>";
             echo "<th>Price</th>";
             echo "<th>Quantity</th>";
             echo "<th>Subtotal</th>";
@@ -104,13 +104,13 @@ include 'session.php';
                 $price_table = $promotion_price == 0 ? $price : $promotion_price;
                 $subtotal = $price_table * $quantity;
 
-                echo "<tr>";
+                echo "<tr class='text-center'>";
                 echo "<td>$no</td>";
-                echo "<td>$order_detail_id</td>";
-                echo "<td>$product_id $name</td>";
-                echo "<td>RM " . $price_table . "</td>";
+                echo "<td>$product_id </td>";
+                echo "<td>$name</td>";
+                echo "<td class='text-end'>RM " . $price_table . "</td>";
                 echo "<td>$quantity</td>";
-                echo "<td>RM " . number_format($subtotal, 2) . "</td>";
+                echo "<td class='text-end'>RM " . number_format($subtotal, 2) . "</td>";
                 echo "</tr>";
 
                 $no++;
@@ -123,8 +123,8 @@ include 'session.php';
             <td></td>
             <td></td>
             <td></td>
-            <td><b>Total Price</b></td>
-            <td><b> RM <?php echo number_format($total_amount, 2); ?></b></td>
+            <td class='text-center'><b>Total Price</b></td>
+            <td class='text-end'><b> RM <?php echo number_format($total_amount, 2); ?></b></td>
         </tr>
         </table>
 
