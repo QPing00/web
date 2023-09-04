@@ -29,13 +29,14 @@ include 'session.php';
         include 'config/database.php';
 
         try {
-            $query = "SELECT username, first_name, last_name, gender, date_of_birth, registration_date_and_time, account_status FROM customers WHERE username = ?";
+            $query = "SELECT image, username, first_name, last_name, gender, date_of_birth, registration_date_and_time, account_status FROM customers WHERE username = ?";
             $stmt = $con->prepare($query);
             $stmt->bindParam(1, $username_check);
             $stmt->execute();
             $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
             // values to fill up our form
+            $image = $row['image'];
             $username = $row['username'];
             $first_name = $row['first_name'];
             $last_name = $row['last_name'];
@@ -53,6 +54,15 @@ include 'session.php';
         ?>
 
         <table class='table table-hover table-responsive table-bordered'>
+            <tr class='text-center'>
+                <td rowspan="8">
+                    <br>
+                    <?php
+                    echo $image == '' ? "<img src = 'image/image_customer.jpg' width = '280' height = '280'>" : "<img src = ' $image ' width = '280' height = '280'>";
+                    ?>
+
+                </td>
+            </tr>
             <tr>
                 <td>Username</td>
                 <td><?php echo htmlspecialchars($username, ENT_QUOTES);  ?></td>
@@ -81,13 +91,8 @@ include 'session.php';
                 <td>Account Status</td>
                 <td><?php echo htmlspecialchars($account_status, ENT_QUOTES);  ?></td>
             </tr>
-            <tr>
-                <td></td>
-                <td>
-                    <a href='customer_read.php' class='btn btn-danger'>Back to read customers</a>
-                </td>
-            </tr>
         </table>
+        <a href='customer_read.php' class='btn btn-danger'>Back to read customers</a>
 
     </div> <!-- end .container -->
 
