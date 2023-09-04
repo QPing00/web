@@ -15,6 +15,10 @@ include 'session.php';
 </head>
 
 <body>
+    <?php
+    include 'navigation.php';
+    ?>
+
     <div class="container">
         <div class="page-header">
             <h1>Update Customer</h1>
@@ -35,6 +39,7 @@ include 'session.php';
             $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
             // values to fill up our form
+            $image = $row['image'];
             $username = $row['username'];
             $email = $row['email'];
             $password = $row['password'];
@@ -50,13 +55,12 @@ include 'session.php';
             die('ERROR: ' . $exception->getMessage());
         }
 
-        $usernameEr = $emailEr = $password_oldEr = $password_newEr = $password_new_confirmEr = $first_nameEr = $last_nameEr = $genderEr = $date_of_birthEr = $account_statusEr = '';
+        $emailEr = $password_oldEr = $password_newEr = $password_new_confirmEr = $first_nameEr = $last_nameEr = $genderEr = $date_of_birthEr = $account_statusEr = '';
+        $file_upload_error_messages = "";
 
         if ($_POST) {
             try {
                 // posted values
-                $username_up = strip_tags($_POST['username']);
-                $email_up = strip_tags($_POST['email']);
                 $password_old_up = strip_tags($_POST['password_old']);
                 $password_new_up = strip_tags($_POST['password_new']);
                 $password_new_confirm_up = strip_tags($_POST['password_new_confirm']);
@@ -69,46 +73,49 @@ include 'session.php';
 
                 $password_to_db = password_hash($password_new_up, PASSWORD_DEFAULT);
 
+                $image = !empty($_FILES["image"]["name"]) ? sha1_file($_FILES['image']['tmp_name']) . "-" . basename($_FILES["image"]["name"]) : "";
+                $image = strip_tags($image);
+
                 $flag = true;
 
+                if ($image) {
 
-                if (empty($username_up)) {
-                    $usernameEr = "Please enter the username";
-                    $flag = false;
-                } else if (strlen($username_up) < 6) {
-                    $usernameEr = 'Minimum 6 characters required';
-                    $flag = false;
-                }
+                    // upload to file to folder
+                    $target_directory = "uploads/"; // folder name
+                    $target_file = $target_directory . $image; // the final path: folder name . 乱码 
+                    $file_type = pathinfo($target_file, PATHINFO_EXTENSION); //pathinfo() find out the final extention of the file name
 
-                $query_username = "SELECT * FROM customers WHERE username = :username";
-                $stmt_username = $con->prepare($query_username);
-                $stmt_username->bindParam(':username', $username_up);
-                $stmt_username->execute();
-                $num_username = $stmt_username->rowCount();
-                if ($num_username > 0) {
-                    $row_username = $stmt_username->fetch(PDO::FETCH_ASSOC);
-                    if ($row_username['username'] !== $username) {
-                        $usernameEr = "Username is already in use";
-                        $flag = false;
-                    }
-                }
+                    // start validating the submitted file
+                    // make sure that file is a real image
+                    $check = getimagesize($_FILES["image"]["tmp_name"]);
+                    if ($check !== false) {
+                        // submitted file is an image
 
-                if (empty($email_up)) {
-                    $emailEr = 'Please enter an email address';
-                } else if (substr_count($email_up, '@') !== 1) {
-                    $emailEr = 'Email format incorrect';
-                }
+                        // make sure certain file types are allowed
+                        $allowed_file_types = array("jpg", "jpeg", "png", "gif");
+                        if (!in_array($file_type, $allowed_file_types)) {
+                            $file_upload_error_messages .= "<div>Only JPG, JPEG, PNG, GIF files are allowed.</div>";
+                        }
 
-                $query_email = "SELECT * FROM customers WHERE email = :email";
-                $stmt_email = $con->prepare($query_email);
-                $stmt_email->bindParam(':email', $email_up);
-                $stmt_email->execute();
-                $num_email = $stmt_email->rowCount();
-                if ($num_email > 0) {
-                    $row_email = $stmt_email->fetch(PDO::FETCH_ASSOC);
-                    if ($row_email['email'] !== $email) {
-                        $emailEr = "Email is already in use";
-                        $flag = false;
+                        // make sure file does not exist in the server
+                        // check if a file with the same name as $target_file already exists in the target directory ("uploads/").
+                        if (file_exists($target_file)) {
+                            $file_upload_error_messages = "<div>Image already exists. Try to change file name.</div>";
+                        }
+
+                        // make sure submitted file is not too large, can't be larger than 512KB (524288 Bytes (in binary))
+                        if ($_FILES['image']['size'] > (524288)) {
+                            $file_upload_error_messages .= "<div>Image must be less than 512 KB in size.</div>";
+                        }
+
+                        // check if the image is square
+                        $image_width = $check[0];
+                        $image_height = $check[1];
+                        if ($image_width !== $image_height) {
+                            $file_upload_error_messages .= "<div>Image must be in square.</div>";
+                        }
+                    } else {
+                        $file_upload_error_messages .= "<div>Submitted file is not an image.</div>";
                     }
                 }
 
@@ -181,6 +188,9 @@ include 'session.php';
                 if (empty($date_of_birth_up)) {
                     $date_of_birthEr = "Please select your date of birth";
                     $flag = false;
+                } elseif (strtotime($date_of_birth_up) > strtotime(date("Y/m/d"))) {
+                    $date_of_birthEr = "Birthdate must be no later than today's date";
+                    $flag = false;
                 }
 
                 if (empty($account_status_up)) {
@@ -188,26 +198,53 @@ include 'session.php';
                     $flag = false;
                 }
 
-
-                if ($flag) {
+                if ($flag && empty($file_upload_error_messages)) {
                     $query = "UPDATE customers
-                        SET username=:username, email=:email, password=:password, first_name=:first_name, last_name=:last_name, gender=:gender, date_of_birth=:date_of_birth, account_status=:account_status 
+                        SET password=:password, first_name=:first_name, last_name=:last_name, gender=:gender, date_of_birth=:date_of_birth, account_status=:account_status, image=:image
                         WHERE username = :username";
 
                     $stmt = $con->prepare($query);
 
                     // bind the parameters
-                    $stmt->bindParam(':username', $username_up);
-                    $stmt->bindParam(':email', $email_up);
+                    $stmt->bindParam(':username', $username);
                     $stmt->bindParam(':password', $password_to_db);
                     $stmt->bindParam(':first_name', $first_name_up);
                     $stmt->bindParam(':last_name', $last_name_up);
                     $stmt->bindParam(':gender', $gender_up);
                     $stmt->bindParam(':date_of_birth', $date_of_birth_up);
                     $stmt->bindParam(':account_status', $account_status_up);
+                    $image_update = ($image == '') ? $row['image'] : $target_file;
+                    $stmt->bindParam(':image', $image_update);
+                    echo "Image Update: " . $image_update;
 
                     if ($stmt->execute()) {
                         echo "<div class='alert alert-success'>Record was updated.</div>";
+
+                        if ($image) {
+
+                            if ($target_file !== $row['image'] && $row['image'] !== '') {
+                                unlink($row['image']);
+                            }
+
+                            // make sure the 'uploads' folder exists
+                            // if not, create it
+                            // if the 'uploads/' directory doesn't exist, it will be created by the code, ensuring that it exists before attempt to upload or perform other operations within it.
+                            if (!is_dir($target_directory)) {
+                                mkdir($target_directory, 0777, true);
+                            }
+
+                            // it means there are no errors, so try to upload the file
+                            if (move_uploaded_file($_FILES["image"]["tmp_name"], $target_file)) {
+                                // move_uploaded_file(filename, destination)
+                                // it means photo was uploaded
+                            } else {
+                                echo "<div class='alert alert-danger'>";
+                                echo "<div>Unable to upload photo.</div>";
+                                echo "<div>Update the record to upload photo.</div>";
+                                echo "</div>";
+                            }
+                            echo "Image Path in Database: " . $image_update;
+                        }
                     } else {
                         echo "<div class='alert alert-danger'>Unable to update record. Please try again.</div>";
                     }
@@ -216,40 +253,18 @@ include 'session.php';
                 die('ERROR: ' . $exception->getMessage());
             }
         }
-
         ?>
 
-
-        <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"] . "?username={$username_check}"); ?>" method="post">
+        <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"] . "?username={$username_check}"); ?>" method="post" enctype="multipart/form-data">
             <table class='table table-hover table-bordered'>
                 <tr>
                     <td>Username</td>
-                    <td><input type='text' name='username' class='form-control' value="<?php echo isset($username_up) ? $username_up : $username; ?>" />
-                        <div class='text-danger'><?php echo $usernameEr; ?></div>
+                    <td><?php echo $username; ?>
                     </td>
                 </tr>
                 <tr>
                     <td>Email Address</td>
-                    <td><input type='text' name='email' class='form-control' value="<?php echo isset($email_up) ? $email_up : $email; ?>" />
-                        <div class='text-danger'><?php echo $emailEr; ?></div>
-                    </td>
-                </tr>
-                <tr>
-                    <td>Old Password</td>
-                    <td><input type='password' name='password_old' class='form-control' value="<?php echo isset($password_old_up) ? $password_old_up : ''; ?>" />
-                        <div class='text-danger'><?php echo $password_oldEr; ?></div>
-                    </td>
-                </tr>
-                <tr>
-                    <td>New Password</td>
-                    <td><input type='password' name='password_new' class='form-control' value="<?php echo isset($password_new_up) ? $password_new_up : ''; ?>" />
-                        <div class='text-danger'><?php echo $password_newEr; ?></div>
-                    </td>
-                </tr>
-                <tr>
-                    <td>Confirm New Password</td>
-                    <td><input type='password' name='password_new_confirm' class='form-control' value="<?php echo isset($password_new_confirm_up) ? $password_new_confirm_up : ''; ?>" />
-                        <div class='text-danger'><?php echo $password_new_confirmEr; ?></div>
+                    <td><?php echo $email; ?>
                     </td>
                 </tr>
                 <tr>
@@ -287,6 +302,37 @@ include 'session.php';
                         <input type="radio" name="account_status" value="Pending" <?php echo (isset($account_status_check) && $account_status_check == 'Pending') ? "checked" : ''; ?>> Pending
 
                         <div class='text-danger'><?php echo $account_statusEr; ?></div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Photo</td>
+                    <td>
+                        <?php
+                        echo $row['image'] == '' ? "<img src = 'image/image_customer.jpg' width = '100' height = '100'>" : "<img src = ' $image ' width = '100' height = '100'>";
+                        echo "<br><br>";
+                        echo '<input type="file" name="image" />'
+                        ?>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2"><b> <br>Change Password: </b></td>
+                </tr>
+                <tr>
+                    <td>Old Password</td>
+                    <td><input type='password' name='password_old' class='form-control' value="<?php echo isset($password_old_up) ? $password_old_up : ''; ?>" />
+                        <div class='text-danger'><?php echo $password_oldEr; ?></div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>New Password</td>
+                    <td><input type='password' name='password_new' class='form-control' value="<?php echo isset($password_new_up) ? $password_new_up : ''; ?>" />
+                        <div class='text-danger'><?php echo $password_newEr; ?></div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Confirm New Password</td>
+                    <td><input type='password' name='password_new_confirm' class='form-control' value="<?php echo isset($password_new_confirm_up) ? $password_new_confirm_up : ''; ?>" />
+                        <div class='text-danger'><?php echo $password_new_confirmEr; ?></div>
                     </td>
                 </tr>
                 <tr>
