@@ -19,7 +19,7 @@
                 <a class="nav-link" href="dashboard.php">Dashboard</a>
                 <a class="nav-link" href="customer_read.php">Customers</a>
                 <a class="nav-link" href="product_read.php">Products</a>
-                <a class="nav-link" href="categories.php">Category</a>
+                <a class="nav-link" href="category_read.php">Category</a>
                 <a class="nav-link" href="order_read.php">Order</a>
             </div>
             <div class="ml-auto">
