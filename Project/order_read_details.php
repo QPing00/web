@@ -30,7 +30,7 @@ include 'session.php';
         include 'config/database.php';
 
         try {
-            $query = "SELECT os.order_id, os.username, c.first_name, c.last_name, os.order_date_time
+            $query = "SELECT os.order_id, os.username, c.first_name, c.last_name, c.email, os.order_date_time
             FROM order_summary os
             INNER JOIN customers c ON os.username = c.username 
             WHERE os.order_id = ?";
@@ -43,6 +43,7 @@ include 'session.php';
             $order_id = $row['order_id'];
             $username = $row['username'];
             $name = $row['first_name'] . ' ' . $row['last_name'];
+            $email = $row['email'];
             $order_date_time = $row['order_date_time'];
         }
 
@@ -64,6 +65,10 @@ include 'session.php';
             <tr>
                 <td>Name</td>
                 <td><?php echo htmlspecialchars($name, ENT_QUOTES);  ?></td>
+            </tr>
+            <tr>
+                <td>Email</td>
+                <td><?php echo htmlspecialchars($email, ENT_QUOTES);  ?></td>
             </tr>
             <tr>
                 <td>Order Date Time</td>
