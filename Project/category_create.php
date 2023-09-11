@@ -101,7 +101,7 @@ include 'session.php';
                     <td></td>
                     <td>
                         <input type='submit' value='Save' class='btn btn-primary' />
-                        <!-- <a href='customer_read.php' class='btn btn-danger'>Back to read customers</a> -->
+                        <a href='category_read.php' class='btn btn-danger'>Back to read categories</a>
                     </td>
                 </tr>
             </table>
