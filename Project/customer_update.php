@@ -39,7 +39,7 @@ include 'session.php';
             $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
             // values to fill up our form
-            $image = $row['image'];
+            $image_db = $row['image'];
             $username = $row['username'];
             $email = $row['email'];
             $password = $row['password'];
@@ -75,7 +75,7 @@ include 'session.php';
 
                 $image = !empty($_FILES["image"]["name"]) ? sha1_file($_FILES['image']['tmp_name']) . "-" . basename($_FILES["image"]["name"]) : "";
                 $image = strip_tags($image);
-
+                $delete_image_check = isset($_POST['delete_image']) ? $_POST['delete_image'] : "";
                 $flag = true;
 
                 if ($image) {
@@ -199,6 +199,41 @@ include 'session.php';
                 }
 
                 if ($flag && empty($file_upload_error_messages)) {
+                    if ($image) {
+
+                        if ($target_file !== $row['image'] && $row['image'] !== '') {
+                            unlink($row['image']);
+                        }
+
+                        // make sure the 'uploads' folder exists
+                        // if not, create it
+                        // if the 'uploads/' directory doesn't exist, it will be created by the code, ensuring that it exists before attempt to upload or perform other operations within it.
+                        if (!is_dir($target_directory)) {
+                            mkdir($target_directory, 0777, true);
+                        }
+
+                        // it means there are no errors, so try to upload the file
+                        if (move_uploaded_file($_FILES["image"]["tmp_name"], $target_file)) {
+                            // move_uploaded_file(filename, destination)
+                            // it means photo was uploaded
+                        } else {
+                            echo "<div class='alert alert-danger'>";
+                            echo "<div>Unable to upload photo.</div>";
+                            echo "<div>Update the record to upload photo.</div>";
+                            echo "</div>";
+                        }
+                    }
+                    if (!empty($delete_image_check) && $delete_image_check == 'delete_image') {
+                        if (!empty($row['image'])) {
+                            if (file_exists("uploads/")) {
+                                unlink($row['image']);
+                                $row['image'] = '';
+                            } else {
+                                echo "<div class='alert alert-danger'>Failed to delete the image.</div>";
+                            }
+                        }
+                    }
+
                     $query = "UPDATE customers
                         SET password=:password, first_name=:first_name, last_name=:last_name, gender=:gender, date_of_birth=:date_of_birth, account_status=:account_status, image=:image
                         WHERE username = :username";
@@ -215,36 +250,11 @@ include 'session.php';
                     $stmt->bindParam(':account_status', $account_status_up);
                     $image_update = ($image == '') ? $row['image'] : $target_file;
                     $stmt->bindParam(':image', $image_update);
-                    echo "Image Update: " . $image_update;
 
                     if ($stmt->execute()) {
                         echo "<div class='alert alert-success'>Record was updated.</div>";
-
-                        if ($image) {
-
-                            if ($target_file !== $row['image'] && $row['image'] !== '') {
-                                unlink($row['image']);
-                            }
-
-                            // make sure the 'uploads' folder exists
-                            // if not, create it
-                            // if the 'uploads/' directory doesn't exist, it will be created by the code, ensuring that it exists before attempt to upload or perform other operations within it.
-                            if (!is_dir($target_directory)) {
-                                mkdir($target_directory, 0777, true);
-                            }
-
-                            // it means there are no errors, so try to upload the file
-                            if (move_uploaded_file($_FILES["image"]["tmp_name"], $target_file)) {
-                                // move_uploaded_file(filename, destination)
-                                // it means photo was uploaded
-                            } else {
-                                echo "<div class='alert alert-danger'>";
-                                echo "<div>Unable to upload photo.</div>";
-                                echo "<div>Update the record to upload photo.</div>";
-                                echo "</div>";
-                            }
-                            echo "Image Path in Database: " . $image_update;
-                        }
+                        $delete_image_check = "";
+                        $image_db = $image_update;
                     } else {
                         echo "<div class='alert alert-danger'>Unable to update record. Please try again.</div>";
                     }
@@ -308,10 +318,13 @@ include 'session.php';
                     <td>Photo</td>
                     <td>
                         <?php
-                        echo $row['image'] == '' ? "<img src = 'image/image_customer.jpg' width = '100' height = '100'>" : "<img src = ' $image ' width = '100' height = '100'>";
-                        echo "<br><br>";
-                        echo '<input type="file" name="image" />'
+                        echo $image_db == '' ? "<img src = 'image/image_product.jpg' width = '100' height = '100'>" : "<img src = '$image_db' width = '100' height = '100'>";
                         ?>
+                        <br><br>
+                        <input type="checkbox" name="delete_image" value="delete_image" <?php echo (!empty($delete_image_check)) ? "checked" : ""; ?>> Delete Photo
+                        <br><br>
+                        Update Photo: <input type="file" name="image" />
+                        <div class='text-danger'><?php echo $file_upload_error_messages; ?></div>
                     </td>
                 </tr>
                 <tr>
