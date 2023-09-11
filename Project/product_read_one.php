@@ -88,10 +88,10 @@ include 'session.php';
         <!--we have our html table here where the record will be displayed-->
         <table class='table table-hover table-responsive table-bordered'>
             <tr class='text-center'>
-                <td rowspan="8">
+                <td rowspan="9">
                     <br>
                     <?php
-                    echo $image == '' ? "<img src = 'image/image_product.jpg' width = '280' height = '280'>" : "<img src = ' $image ' width = '280' height = '280'>";
+                    echo $image == '' ? "<img src = 'image/image_product.jpg' width = '280' height = '280'>" : "<img src = '$image' width = '280' height = '280'>";
                     ?>
 
                 </td>
@@ -122,9 +122,17 @@ include 'session.php';
                 <td>Expired Date</td>
                 <td><?php echo htmlspecialchars($expired_date, ENT_QUOTES);  ?></td>
             </tr>
+            <tr>
+                <td colspan="2">
+                    <?php
+                    echo "<a href='product_update.php?id=$id' class='btn btn-primary' style='margin-right: 0.5em;'>Edit</a>";
+                    echo "<a href='#' onclick='delete_product({$id});' class='btn btn-danger'>Delete</a>";
+                    ?>
+                </td>
+            </tr>
         </table>
         <br>
-        <a href='product_read.php' class='btn btn-danger'>Back to read products</a>
+        <a href='product_read.php' class='btn btn-warning'>Back to read products</a>
 
         <!--
             The ENT_QUOTES flag, when used with the htmlspecialchars() or htmlentities() function, 
@@ -152,9 +160,21 @@ include 'session.php';
             The die function outputs a message and terminates the script immediately.
         -->
 
-
-
     </div> <!-- end .container -->
+
+    <!-- confirm delete record will be here -->
+    <script type='text/javascript'>
+        // confirm record deletion
+        function delete_product(id) {
+
+            var answer = confirm('Are you sure?');
+            if (answer) {
+                // if user clicked ok,
+                // pass the id to delete.php and execute the delete query
+                window.location = 'product_delete.php?id=' + id;
+            }
+        }
+    </script>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
 
