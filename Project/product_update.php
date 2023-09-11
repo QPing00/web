@@ -70,7 +70,7 @@ include 'session.php';
             $promotion_price = $row['promotion_price'];
             $manufacture_date = $row['manufacture_date'];
             $expired_date = $row['expired_date'];
-            $image = $row['image'];
+            $image_db = $row['image'];
         }
 
         // show error
@@ -95,7 +95,7 @@ include 'session.php';
                 $expired_date_up = strip_tags($_POST['expired_date']);
                 $image = !empty($_FILES["image"]["name"]) ? sha1_file($_FILES['image']['tmp_name']) . "-" . basename($_FILES["image"]["name"]) : "";
                 $image = strip_tags($image);
-
+                $delete_image_check = isset($_POST['delete_image']) ? $_POST['delete_image'] : "";
                 $flag = true;
 
                 if ($image) {
@@ -193,6 +193,42 @@ include 'session.php';
                 }
 
                 if ($flag && empty($file_upload_error_messages)) {
+                    if ($image) {
+
+                        if ($target_file !== $row['image'] && $row['image'] !== '') {
+                            unlink($row['image']);
+                        }
+
+                        // make sure the 'uploads' folder exists
+                        // if not, create it
+                        // if the 'uploads/' directory doesn't exist, it will be created by the code, ensuring that it exists before attempt to upload or perform other operations within it.
+                        if (!is_dir($target_directory)) {
+                            mkdir($target_directory, 0777, true);
+                        }
+
+                        // it means there are no errors, so try to upload the file
+                        if (move_uploaded_file($_FILES["image"]["tmp_name"], $target_file)) {
+                            // move_uploaded_file(filename, destination)
+                            // it means photo was uploaded
+                        } else {
+                            echo "<div class='alert alert-danger'>";
+                            echo "<div>Unable to upload photo.</div>";
+                            echo "<div>Update the record to upload photo.</div>";
+                            echo "</div>";
+                        }
+                    }
+
+                    if (!empty($delete_image_check) && $delete_image_check == 'delete_image') {
+                        if (!empty($row['image'])) {
+                            if (file_exists("uploads/")) {
+                                unlink($row['image']);
+                                $row['image'] = '';
+                            } else {
+                                echo "<div class='alert alert-danger'>Failed to delete the image.</div>";
+                            }
+                        }
+                    }
+
                     // write update query
                     // in this case, it seemed like we have so many fields to pass and
                     // it is better to label them and not use question marks
@@ -214,35 +250,11 @@ include 'session.php';
                     $image_update = $image == '' ? $row['image'] : $target_file;
                     $stmt->bindParam(':image', $image_update);
 
-
                     // Execute the query
                     if ($stmt->execute()) {
-
-                        if ($image) {
-
-                            if ($target_file !== $row['image'] && $row['image'] !== '') {
-                                unlink($row['image']);
-                            }
-
-                            // make sure the 'uploads' folder exists
-                            // if not, create it
-                            // if the 'uploads/' directory doesn't exist, it will be created by the code, ensuring that it exists before attempt to upload or perform other operations within it.
-                            if (!is_dir($target_directory)) {
-                                mkdir($target_directory, 0777, true);
-                            }
-
-                            // it means there are no errors, so try to upload the file
-                            if (move_uploaded_file($_FILES["image"]["tmp_name"], $target_file)) {
-                                // move_uploaded_file(filename, destination)
-                                // it means photo was uploaded
-                            } else {
-                                echo "<div class='alert alert-danger'>";
-                                echo "<div>Unable to upload photo.</div>";
-                                echo "<div>Update the record to upload photo.</div>";
-                                echo "</div>";
-                            }
-                        }
                         echo "<div class='alert alert-success'>Record was saved.</div>";
+                        $delete_image_check = "";
+                        $image_db = $target_file;
                     } else {
                         echo "<div class='alert alert-danger'>Unable to update record. Please try again.</div>";
                     }
@@ -270,7 +282,7 @@ include 'session.php';
                         <select class="form-control" aria-label="Default select example" name="category">
                             <option value="">Select a Category</option>
                             <?php
-                            $query = "SELECT category_id, category_name FROM categories";
+                            $query = "SELECT category_id, category_name FROM categories ORDER BY category_id ASC";
                             $stmt = $con->prepare($query);
                             $stmt->execute();
 
@@ -310,7 +322,7 @@ include 'session.php';
                 </tr>
                 <tr>
                     <td>Expired Date</td>
-                    <td><input type='date' name='expired_date' value="<?php echo isset($expired_date_up) ? $expired_date_up : $expired_date;  ?>" class='form-control' />
+                    <td><input type='date' name='expired_date' value="<?php echo isset($expired_date_up) ? $expired_date_up : $expired_date; ?>" class='form-control' />
                         <div class='text-danger'><?php echo $expired_dateEr; ?></div>
                     </td>
                 </tr>
@@ -318,10 +330,13 @@ include 'session.php';
                     <td>Photo</td>
                     <td>
                         <?php
-                        echo $image == '' ? "<img src = 'image/image_product.jpg' width = '100' height = '100'>" : "<img src = ' $image ' width = '100' height = '100'>";
-                        echo "<br><br>";
-                        echo '<input type="file" name="image" />'
+                        echo $image_db == '' ? "<img src = 'image/image_product.jpg' width = '100' height = '100'>" : "<img src = '$image_db' width = '100' height = '100'>";
                         ?>
+                        <br><br>
+                        <input type="checkbox" name="delete_image" value="delete_image" <?php echo (!empty($delete_image_check)) ? "checked" : ""; ?>> Delete Photo
+                        <br><br>
+                        Update Photo: <input type="file" name="image" />
+                        <div class='text-danger'><?php echo $file_upload_error_messages; ?></div>
                     </td>
                 </tr>
 
