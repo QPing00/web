@@ -40,27 +40,34 @@ include 'session.php';
         // include database connection
         include 'config/database.php';
 
+        // delete message prompt will be here
+        $action = isset($_GET['action']) ? $_GET['action'] : "";
+        // if it was redirected from delete.php
+        if ($action == 'deleted') {
+            echo "<div class='alert alert-success'>Record was deleted.</div>";
+        } else if ($action == 'failToDelete') {
+            echo "<div class='alert alert-danger'>Customers who have placed orders before cannot be deleted.</div>";
+        }
+
         $query = "SELECT image, username, email, first_name, last_name, registration_date_and_time, account_status FROM customers 
             ORDER BY username ASC";
 
-        if ($_GET) {
+        if ($_GET && isset($_GET['search'])) {
             $search = $_GET['search'];
 
             if (empty($search)) {
-                echo "<div class='alert alert-danger'>Please enter a product keyword</div>";
+                echo "<div class='alert alert-danger'>Please enter a keyword</div>";
             }
 
             $query = "SELECT image, username, email, first_name, last_name, registration_date_and_time, account_status FROM customers WHERE 
             username LIKE '%$search%' OR
             first_name LIKE '%$search%' OR
-            last_name LIKE '%$search%'
+            last_name LIKE '%$search%' OR
+            email LIKE '$search'
             ORDER BY username ASC";
         }
 
-        // delete message prompt will be here
-
         // select all data
-
         $stmt = $con->prepare($query);
         $stmt->execute();
 
@@ -112,7 +119,7 @@ include 'session.php';
                 echo "<a href='customer_update.php?username={$username}' class='btn btn-primary' style='margin-right: 0.5em;'>Edit</a>";
 
                 // we will use this links on next part of this post
-                echo "<a href='#' onclick='delete_user({$username});'  class='btn btn-danger'>Delete</a>";
+                echo "<a href='#' onclick='delete_user({$username});' class='btn btn-danger'>Delete</a>";
                 echo "</td>";
                 echo "</tr>";
             }
@@ -126,14 +133,24 @@ include 'session.php';
         }
         ?>
 
-
-
     </div> <!-- end .container -->
 
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
 
     <!-- confirm delete record will be here -->
+    <script type='text/javascript'>
+        // confirm record deletion
+        function delete_user(username) {
+
+            var answer = confirm('Are you sure?');
+            if (answer) {
+                // if user clicked ok,
+                // pass the id to delete.php and execute the delete query
+                window.location = 'customer_delete.php?username=' + username;
+            }
+        }
+    </script>
 
 </body>
 
