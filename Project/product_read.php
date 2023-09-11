@@ -37,18 +37,28 @@ include 'session.php';
             </form>
         </div>
 
+        <br>
 
         <?php
 
         // include database connection
         include 'config/database.php';
 
+        // delete message prompt will be here
+        $action = isset($_GET['action']) ? $_GET['action'] : "";
+        // if it was redirected from delete.php
+        if ($action == 'deleted') {
+            echo "<div class='alert alert-success'>Record was deleted.</div>";
+        } else if ($action == 'failToDelete') {
+            echo "<div class='alert alert-danger'>Products already in the order list cannot be deleted.</div>";
+        }
+
         $query = "SELECT p.id, p.image, p.name,p.price, p.promotion_price, c.category_name
         FROM products p
         INNER JOIN categories c ON p.category_id = c.category_id
-        ORDER BY id ASC";
+        ORDER BY id DESC";
 
-        if ($_GET) {
+        if ($_GET && isset($_GET['search'])) {
             $search = $_GET['search'];
 
             if (empty($search)) {
@@ -60,17 +70,13 @@ include 'session.php';
             INNER JOIN categories c ON p.category_id = c.category_id
             WHERE name LIKE '%$search%' 
             OR category_name LIKE '%$search%'
-            ORDER BY id ASC";
+            ORDER BY id DESC";
         }
-
-        // delete message prompt will be here
 
         $stmt = $con->prepare($query);
         $stmt->execute();
-
         // this is how to get number of rows returned
         $num = $stmt->rowCount();
-
 
         //check if more than 0 record found
         if ($num > 0) {
@@ -99,7 +105,7 @@ include 'session.php';
                 echo "<tr class='text-center'>";
                 echo "<td>{$id}</td>";
                 echo "<td>";
-                echo $image == '' ? "<img src = 'image/image_product.jpg' width = '100' height = '100'>" : "<img src = ' $image ' width = '100' height = '100'>";
+                echo $image == '' ? "<img src = 'image/image_product.jpg' width = '100' height = '100'>" : "<img src = '$image' width = '100' height = '100'>";
                 echo "</td>";
                 echo "<td>{$name}</td>";
                 echo "<td>{$category_name}</td>";
@@ -117,7 +123,7 @@ include 'session.php';
                 echo "<a href='product_update.php?id={$id}' class='btn btn-primary' style='margin-right: 0.5em;'>Edit</a>";
 
                 // we will use this links on next part of this post
-                echo "<a href='#' onclick='delete_user({$id});'  class='btn btn-danger'>Delete</a>";
+                echo "<a href='#' onclick='delete_product({$id});'  class='btn btn-danger'>Delete</a>";
                 echo "</td>";
                 echo "</tr>";
             }
@@ -153,6 +159,18 @@ include 'session.php';
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
 
     <!-- confirm delete record will be here -->
+    <script type='text/javascript'>
+        // confirm record deletion
+        function delete_product(id) {
+
+            var answer = confirm('Are you sure?');
+            if (answer) {
+                // if user clicked ok,
+                // pass the id to delete.php and execute the delete query
+                window.location = 'product_delete.php?id=' + id;
+            }
+        }
+    </script>
 
 </body>
 
