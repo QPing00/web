@@ -20,7 +20,7 @@ include 'session.php';
 
     <div class="container">
         <div class="page-header">
-            <h1>Read Category</h1>
+            <h1>Read Categories</h1>
         </div>
 
         <div class="d-flex justify-content-between mb-4">
