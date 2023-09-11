@@ -144,7 +144,6 @@ include 'session.php';
                     $flag = false;
                 }
 
-
                 if (strtotime($manufacture_date) >= strtotime($expired_date)) {
                     $expired_dateEr = "Expired date must be earlier than manufacture date";
                     $flag = false;
@@ -222,7 +221,7 @@ include 'session.php';
                         <select class="form-select" aria-label="Default select example" name="category" id="category">
                             <option value="">Select a Category</option>
                             <?php
-                            $query = "SELECT category_id, category_name FROM categories";
+                            $query = "SELECT category_id, category_name FROM categories ORDER BY category_id ASC";
                             $stmt = $con->prepare($query);
                             $stmt->execute();
 
