@@ -55,7 +55,7 @@ include 'session.php';
 
         <table class='table table-hover table-responsive table-bordered'>
             <tr class='text-center'>
-                <td rowspan="8">
+                <td rowspan="9">
                     <br>
                     <?php
                     echo $image == '' ? "<img src = 'image/image_customer.jpg' width = '280' height = '280'>" : "<img src = ' $image ' width = '280' height = '280'>";
@@ -91,12 +91,35 @@ include 'session.php';
                 <td>Account Status</td>
                 <td><?php echo htmlspecialchars($account_status, ENT_QUOTES);  ?></td>
             </tr>
+            <tr>
+                <td colspan="2">
+                    <?php
+                    echo "<a href='customer_update.php?username=$username' class='btn btn-primary' style='margin-right: 0.5em;'>Edit</a>";
+                    echo "<a href='#' onclick='delete_user({$username});' class='btn btn-danger'>Delete</a>";
+                    ?>
+                </td>
+            </tr>
         </table>
-        <a href='customer_read.php' class='btn btn-danger'>Back to read customers</a>
+
+        <a href='customer_read.php' class='btn btn-warning'>Back to read customers</a>
 
     </div> <!-- end .container -->
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
+
+    <!-- confirm delete record will be here -->
+    <script type='text/javascript'>
+        // confirm record deletion
+        function delete_user(username) {
+
+            var answer = confirm('Are you sure?');
+            if (answer) {
+                // if user clicked ok,
+                // pass the id to delete.php and execute the delete query
+                window.location = 'customer_delete.php?username=' + username;
+            }
+        }
+    </script>
 
 </body>
 
