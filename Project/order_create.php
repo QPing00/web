@@ -32,7 +32,7 @@ include 'session.php';
         $row_num = isset($_POST['row_num']) ? $_POST['row_num'] : 1;
 
 
-        if (isset($_POST['save'])) {
+        if (isset($_POST['submit'])) {
 
             try {
                 $summary_query = "INSERT INTO order_summary SET username=:username, order_date_time=:order_date_time";
@@ -52,8 +52,8 @@ include 'session.php';
 
                 $product_ID_post = $_POST["product_ID"];
                 $quantity_post = $_POST["quantity"];
-                var_dump($_POST["product_ID"]);
-                var_dump($_POST["quantity"]);
+                // var_dump($_POST["product_ID"]);
+                // var_dump($_POST["quantity"]);
 
                 // Product ID Validation Loop
                 // used to validate the selected product IDs and corresponding quantities that the user has submitted in the form
@@ -153,13 +153,16 @@ include 'session.php';
         }
         ?>
 
+        <br>
         <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
             <table class='table table-hover table-responsive table-bordered'>
 
                 <?php $username_set = isset($_POST["username"]) ? $_POST["username"] : ''; ?>
                 <div class="row align-items-center">
-                    <p class="mb-0">Customer:</p>
-                    <div class="col-md">
+                    <div class="col-md-2">
+                        <p class="mb-0">Customer:</p>
+                    </div>
+                    <div class="col-md-3">
                         <select class="form-select" name="username">
                             <option value="">Select username</option>
                             <?php
@@ -182,8 +185,10 @@ include 'session.php';
                 <br>
 
                 <div class="row align-items-center">
-                    <p class="mb-0">Select Number of Rows:</p>
-                    <div class="col-md">
+                    <div class="col-md-2">
+                        <p class="mb-0">Select Number of Rows:</p>
+                    </div>
+                    <div class="col-md-3">
                         <select class="form-select mt-1" name="row_num">
                             <?php
                             for ($r = 1; $r <= 10; $r++) {
@@ -193,12 +198,18 @@ include 'session.php';
                             ?>
                         </select>
                     </div>
-                    <div class="col-md">
-                        <input type="submit" value="Confirm" name="row_confirm" class="btn btn-warning btn-block" />
+                </div>
+
+                <div class="row align-items-center">
+                    <div class="col-md-2">
+                    </div>
+                    <div class="col-md-3">
+                        <br>
+                        <input type="submit" value="Confirm" name="row_confirm" class="btn btn-warning" />
                     </div>
                 </div>
 
-                <br>
+                <br><br>
 
                 <?php
 
@@ -214,7 +225,8 @@ include 'session.php';
                             <?php echo $i + 1 ?>
                         </td>
                         <td>
-                            <?php print_r($product_ID_post); ?>
+                            <?php // print_r($product_ID_post); 
+                            ?>
                             <select class="form-select" name="product_ID[]">
                                 <option value="">Select product</option>
                                 <?php
@@ -246,7 +258,6 @@ include 'session.php';
 
                         <td>Quantity</td>
                         <td>
-                            <?php print_r($quantity_post); ?>
                             <input type='number' name='quantity[]' class='form-control' value="<?php echo isset($quantity_post) ? $quantity_post : ''; ?>" />
                             <div class='text-danger'>
                                 <?php if (!empty($quantityEr[$i])) {
@@ -260,11 +271,13 @@ include 'session.php';
                 <tr>
                     <td></td>
                     <td colspan=3>
-                        <input type='submit' value='Save' name='save' class='btn btn-primary' />
-                        <a href='order_read.php' class='btn btn-danger'>Back to read orders</a>
+                        <input type='submit' value='Submit' name='submit' class='btn btn-primary' />
                     </td>
                 </tr>
             </table>
+
+            <br>
+            <a href='order_read.php' class='btn btn-outline-dark'>Back to Read Orders</a>
 
         </form>
 
