@@ -139,9 +139,21 @@ include 'session.php';
                     }
                 }
 
+                $query_name = "SELECT * FROM products WHERE name = :name";
+                $stmt_name = $con->prepare($query_name);
+                $stmt_name->bindParam(':name', $name_up);
+                $stmt_name->execute();
+                $num_name = $stmt_name->rowCount();
+
                 if (empty($name_up)) {
                     $nameEr = "Please enter the product name";
                     $flag = false;
+                } else if ($num_name > 0) {
+                    $row_name = $stmt_name->fetch(PDO::FETCH_ASSOC);
+                    if ($row_name['name'] !== $name) {
+                        $nameEr = "Product name is already in use";
+                        $flag = false;
+                    }
                 }
 
                 if (empty($category_up)) {
@@ -182,14 +194,20 @@ include 'session.php';
                     $flag = false;
                 }
 
-                if (empty($expired_date_up)) {
-                    $expired_dateEr = "Please enter the product expired date";
-                    $flag = false;
-                }
+                $cat_query = "SELECT expired_date FROM categories WHERE category_id = :category_id";
+                $cat_stmt = $con->prepare($cat_query);
+                $cat_stmt->bindParam(':category_id', $category_up);
+                $cat_stmt->execute();
+                $cat_row = $cat_stmt->fetch(PDO::FETCH_ASSOC);
 
-                if (strtotime($manufacture_date_up) >= strtotime($expired_date_up)) {
-                    $expired_dateEr = "Expired date must be earlier than manufacture date";
-                    $flag = false;
+                if ($cat_row['expired_date'] == 'Yes') {
+                    if (empty($expired_date_up)) {
+                        $expired_dateEr = "Please enter the product expired date";
+                        $flag = false;
+                    } else if (strtotime($manufacture_date_up) >= strtotime($expired_date_up)) {
+                        $expired_dateEr = "Expired date must be earlier than manufacture date";
+                        $flag = false;
+                    }
                 }
 
                 if ($flag && empty($file_upload_error_messages)) {
@@ -254,7 +272,7 @@ include 'session.php';
                     if ($stmt->execute()) {
                         echo "<div class='alert alert-success'>Record was saved.</div>";
                         $delete_image_check = "";
-                        $image_db = $target_file;
+                        $image_db = $image_update;
                     } else {
                         echo "<div class='alert alert-danger'>Unable to update record. Please try again.</div>";
                     }
@@ -331,9 +349,13 @@ include 'session.php';
                     <td>
                         <?php
                         echo $image_db == '' ? "<img src = 'image/image_product.jpg' width = '100' height = '100'>" : "<img src = '$image_db' width = '100' height = '100'>";
+                        echo '<br>';
+                        if (!empty($image_db)) {
+                            echo '<input type="checkbox" name="delete_image" value="delete_image"';
+                            echo (!empty($delete_image_check)) ? "checked" : "";
+                            echo '> Delete Photo';
+                        }
                         ?>
-                        <br><br>
-                        <input type="checkbox" name="delete_image" value="delete_image" <?php echo (!empty($delete_image_check)) ? "checked" : ""; ?>> Delete Photo
                         <br><br>
                         Update Photo: <input type="file" name="image" />
                         <div class='text-danger'><?php echo $file_upload_error_messages; ?></div>
@@ -344,14 +366,31 @@ include 'session.php';
                     <td></td>
                     <td>
                         <input type='submit' value='Save Changes' class='btn btn-primary' />
-                        <a href='product_read.php' class='btn btn-danger'>Back to read products</a>
+                        <?php echo "<a href='#' onclick='delete_product({$id});'  class='btn btn-danger'>Delete</a>"; ?>
                     </td>
                 </tr>
             </table>
+            <a href='product_read.php' class='btn btn-outline-dark'>Back to read products</a>
+            <br><br>
         </form>
 
-    </div>
-    <!-- end .container -->
+    </div> <!-- end .container -->
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
+
+    <!-- confirm delete record will be here -->
+    <script type='text/javascript'>
+        // confirm record deletion
+        function delete_product(id) {
+
+            var answer = confirm('Are you sure?');
+            if (answer) {
+                // if user clicked ok,
+                // pass the id to delete.php and execute the delete query
+                window.location = 'product_delete.php?id=' + id;
+            }
+        }
+    </script>
 </body>
 
 </html>
