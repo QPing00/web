@@ -318,10 +318,14 @@ include 'session.php';
                     <td>Photo</td>
                     <td>
                         <?php
-                        echo $image_db == '' ? "<img src = 'image/image_product.jpg' width = '100' height = '100'>" : "<img src = '$image_db' width = '100' height = '100'>";
+                        echo $image_db == '' ? "<img src = 'image/image_customer.jpg' width = '100' height = '100'>" : "<img src = '$image_db' width = '100' height = '100'>";
+                        echo '<br>';
+                        if (!empty($image_db)) {
+                            echo '<input type="checkbox" name="delete_image" value="delete_image"';
+                            echo (!empty($delete_image_check)) ? "checked" : "";
+                            echo '> Delete Photo';
+                        }
                         ?>
-                        <br><br>
-                        <input type="checkbox" name="delete_image" value="delete_image" <?php echo (!empty($delete_image_check)) ? "checked" : ""; ?>> Delete Photo
                         <br><br>
                         Update Photo: <input type="file" name="image" />
                         <div class='text-danger'><?php echo $file_upload_error_messages; ?></div>
@@ -352,15 +356,33 @@ include 'session.php';
                     <td></td>
                     <td>
                         <input type='submit' value='Save Changes' class='btn btn-primary' />
-                        <a href='customer_read.php' class='btn btn-danger'>Back to read customers</a>
+                        <?php
+                        echo "<a href='#' onclick=\"delete_user('{$username}');\" class='btn btn-danger'>Delete</a>";
+                        ?>
                     </td>
                 </tr>
             </table>
+            <a href='customer_read.php' class='btn btn-outline-dark'>Back to Read Customers</a>
+            <br><br>
         </form>
 
     </div> <!-- end .container -->
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
+
+    <!-- confirm delete record will be here -->
+    <script type='text/javascript'>
+        // confirm record deletion
+        function delete_user(username) {
+
+            var answer = confirm('Are you sure?');
+            if (answer) {
+                // if user clicked ok,
+                // pass the id to delete.php and execute the delete query
+                window.location = 'customer_delete.php?username=' + username;
+            }
+        }
+    </script>
 
 </body>
 
