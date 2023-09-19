@@ -25,23 +25,23 @@ include 'session.php';
 
         <?php
 
-        $category_nameEr = $descriptionEr = "";
+        $category_nameEr = $descriptionEr = $expired_dateEr = "";
 
         if ($_POST) {
             // include database connection
             include 'config/database.php';
             try {
-                // insert query
-                $query = "INSERT INTO categories SET category_name=:category_name, description=:description, created=:created";
-                // prepare query for execution
-                $stmt = $con->prepare($query);
-                // posted values
                 $category_name = strip_tags($_POST['category_name']);
                 $description = strip_tags($_POST['description']);
+                $expired_date = isset($_POST['expired_date']) ? $_POST['expired_date'] : "";
+
+                $query = "INSERT INTO categories SET category_name=:category_name, description=:description, expired_date=:expired_date, created=:created";
+                $stmt = $con->prepare($query);
 
                 // bind the parameters
                 $stmt->bindParam(':category_name', $category_name);
                 $stmt->bindParam(':description', $description);
+                $stmt->bindParam(':expired_date', $expired_date);
 
                 // specify when this record was inserted to the database
                 $created = date('Y-m-d H:i:s');
@@ -52,8 +52,17 @@ include 'session.php';
 
                 $flag = true;
 
+                $query_category_name = "SELECT * FROM categories WHERE category_name = :category_name";
+                $stmt_category_name = $con->prepare($query_category_name);
+                $stmt_category_name->bindParam(':category_name', $category_name);
+                $stmt_category_name->execute();
+                $num_category_name = $stmt_category_name->rowCount();
+
                 if (empty($category_name)) {
                     $category_nameEr = "Please enter the category name";
+                    $flag = false;
+                } else if ($num_category_name > 0) {
+                    $category_nameEr = "Category name is already in use";
                     $flag = false;
                 }
 
@@ -62,11 +71,16 @@ include 'session.php';
                     $flag = false;
                 }
 
+                if (empty($expired_date)) {
+                    $expired_dateEr = "Please select";
+                    $flag = false;
+                }
+
                 if ($flag == true) {
                     if ($stmt->execute()) {
                         // if $stmt->execute() == true - not problem with above sql 
                         echo "<div class='alert alert-success'>Record was saved.</div>";
-                        $category_name = $description = "";
+                        $category_name = $description = $expired_date = "";
                     } else {
                         echo "<div class='alert alert-danger'>Unable to save record.</div>";
                     }
@@ -95,6 +109,14 @@ include 'session.php';
                     <td>Description</td>
                     <td><textarea name='description' class='form-control'><?php echo isset($description) ? $description : ''; ?></textarea>
                         <div class='text-danger'><?php echo $descriptionEr; ?></div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Expired Date</td>
+                    <td>
+                        <input type="radio" name="expired_date" value="Yes" <?php echo (isset($expired_date) && $expired_date == 'Yes') ? "checked" : ''; ?>> Required
+                        <input type="radio" name="expired_date" value="No" <?php echo (isset($expired_date) && $expired_date == 'No') ? "checked" : ''; ?>> Not required
+                        <div class='text-danger'><?php echo $expired_dateEr; ?></div>
                     </td>
                 </tr>
                 <tr>
