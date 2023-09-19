@@ -24,7 +24,7 @@ include 'session.php';
         ?>
         Account logged out.
     </div>
-    <a class="btn btn-primary" href="login.php">Login</a>
+    <a class="btn btn-primary" href="index.php">Login</a>
 </body>
 
 
