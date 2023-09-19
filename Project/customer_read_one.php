@@ -54,54 +54,55 @@ include 'session.php';
         ?>
 
         <table class='table table-hover table-responsive table-bordered'>
-            <tr class='text-center'>
-                <td rowspan="9">
-                    <br>
+            <tr'>
+                <td>Image</td>
+                <td>
                     <?php
-                    echo $image == '' ? "<img src = 'image/image_customer.jpg' width = '280' height = '280'>" : "<img src = ' $image ' width = '280' height = '280'>";
+                    echo $image == '' ? "<img src = 'image/image_customer.jpg' width = '150' height = '150'>" : "<img src = ' $image ' width = '150' height = '150'>";
                     ?>
 
                 </td>
-            </tr>
-            <tr>
-                <td>Username</td>
-                <td><?php echo htmlspecialchars($username, ENT_QUOTES);  ?></td>
-            </tr>
-            <tr>
-                <td>First Name</td>
-                <td><?php echo htmlspecialchars($first_name, ENT_QUOTES);  ?></td>
-            </tr>
-            <tr>
-                <td>Last Name</td>
-                <td><?php echo htmlspecialchars($last_name, ENT_QUOTES);  ?></td>
-            </tr>
-            <tr>
-                <td>Gender</td>
-                <td><?php echo htmlspecialchars($gender, ENT_QUOTES);  ?></td>
-            </tr>
-            <tr>
-                <td>Date of Birth</td>
-                <td><?php echo htmlspecialchars($date_of_birth, ENT_QUOTES);  ?></td>
-            </tr>
-            <tr>
-                <td>Registration Date and Time</td>
-                <td><?php echo htmlspecialchars($registration_date_and_time, ENT_QUOTES);  ?></td>
-            </tr>
-            <tr>
-                <td>Account Status</td>
-                <td><?php echo htmlspecialchars($account_status, ENT_QUOTES);  ?></td>
-            </tr>
-            <tr>
-                <td colspan="2">
-                    <?php
-                    echo "<a href='customer_update.php?username=$username' class='btn btn-primary' style='margin-right: 0.5em;'>Edit</a>";
-                    echo "<a href='#' onclick='delete_user({$username});' class='btn btn-danger'>Delete</a>";
-                    ?>
-                </td>
-            </tr>
+                </tr>
+                <tr>
+                    <td>Username</td>
+                    <td><?php echo htmlspecialchars($username, ENT_QUOTES);  ?></td>
+                </tr>
+                <tr>
+                    <td>First Name</td>
+                    <td><?php echo htmlspecialchars($first_name, ENT_QUOTES);  ?></td>
+                </tr>
+                <tr>
+                    <td>Last Name</td>
+                    <td><?php echo htmlspecialchars($last_name, ENT_QUOTES);  ?></td>
+                </tr>
+                <tr>
+                    <td>Gender</td>
+                    <td><?php echo htmlspecialchars($gender, ENT_QUOTES);  ?></td>
+                </tr>
+                <tr>
+                    <td>Date of Birth</td>
+                    <td><?php echo htmlspecialchars($date_of_birth, ENT_QUOTES);  ?></td>
+                </tr>
+                <tr>
+                    <td>Registration Date and Time</td>
+                    <td><?php echo htmlspecialchars($registration_date_and_time, ENT_QUOTES);  ?></td>
+                </tr>
+                <tr>
+                    <td>Account Status</td>
+                    <td><?php echo htmlspecialchars($account_status, ENT_QUOTES);  ?></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td>
+                        <?php
+                        echo "<a href='customer_update.php?username=$username' class='btn btn-primary' style='margin-right: 0.5em;'>Edit</a>";
+                        echo "<a href='#' onclick=\"delete_user('{$username}');\" class='btn btn-danger'>Delete</a>";
+                        ?>
+                    </td>
+                </tr>
         </table>
 
-        <a href='customer_read.php' class='btn btn-warning'>Back to read customers</a>
+        <a href='customer_read.php' class='btn btn-outline-dark'>Back to read customers</a>
 
     </div> <!-- end .container -->
 
