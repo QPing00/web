@@ -133,7 +133,7 @@ include 'session.php';
         </tr>
         </table>
 
-        <a href='order_read.php' class='btn btn-danger'>Back to read order</a>
+        <a href='order_read.php' class='btn btn-outline-dark'>Back to read order</a>
 
 
     </div> <!-- end .container -->
