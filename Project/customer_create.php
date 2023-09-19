@@ -278,6 +278,7 @@ include 'session.php';
                     <td>
                         <input type="radio" name="gender" value="Male" <?php echo (isset($gender) && $gender == 'Male') ? "checked" : ''; ?>> Male
                         <input type="radio" name="gender" value="Female" <?php echo (isset($gender) && $gender == 'Female') ? "checked" : ''; ?>> Female
+                        <div class='text-danger'><?php echo $genderEr; ?></div>
                     </td>
                 </tr>
                 <tr>
