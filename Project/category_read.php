@@ -36,10 +36,18 @@ include 'session.php';
         <?php
         include 'config/database.php';
 
+        // delete message prompt will be here
+        $action = isset($_GET['action']) ? $_GET['action'] : "";
+        if ($action == 'deleted') {
+            echo "<div class='alert alert-success'>Record was deleted.</div>";
+        } else if ($action == 'failToDelete') {
+            echo "<div class='alert alert-danger'>Category in used cannot be deleted.</div>";
+        }
+
         $query = "SELECT * FROM categories 
             ORDER BY category_id ASC";
 
-        if ($_GET) {
+        if ($_GET && isset($_GET['search'])) {
             $search = $_GET['search'];
 
             if (empty($search)) {
@@ -64,7 +72,7 @@ include 'session.php';
             echo "<tr>";
             echo "<th>Category Id</th>";
             echo "<th>Category Name</th>";
-            echo "<th>Descriptione</th>";
+            echo "<th>Action</th>";
             echo "</tr>";
 
             while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
@@ -72,7 +80,12 @@ include 'session.php';
                 echo "<tr>";
                 echo "<td>{$category_id}</td>";
                 echo "<td>{$category_name}</td>";
-                echo "<td>{$description}</td>";
+
+                echo "<td>";
+                echo "<a href='category_read_one.php?category_id={$category_id}' class='btn btn-info' style='margin-right: 0.5em;'>Read</a>";
+                echo "<a href='category_update.php?category_id={$category_id}' class='btn btn-primary' style='margin-right: 0.5em; margin-top: 0.5em; margin-bottom:0.5em;'>Edit</a>";
+                echo "<a href='#' onclick='delete_category({$category_id});' class='btn btn-danger'>Delete</a>";
+                echo "</td>";
                 echo "</tr>";
             }
 
@@ -86,6 +99,20 @@ include 'session.php';
         ?>
 
     </div> <!-- end .container -->
+
+    <!-- confirm delete record will be here -->
+    <script type='text/javascript'>
+        // confirm record deletion
+        function delete_category(category_id) {
+
+            var answer = confirm('Are you sure?');
+            if (answer) {
+                // if user clicked ok,
+                // pass the id to delete.php and execute the delete query
+                window.location = 'category_delete.php?category_id=' + category_id;
+            }
+        }
+    </script>
 
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
