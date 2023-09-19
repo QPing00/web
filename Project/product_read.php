@@ -32,7 +32,7 @@ include 'session.php';
             <a href="product_create.php" class="btn btn-primary m-b-1em">Create New Product</a>
 
             <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="get" class="d-flex">
-                <input type="search" id="search" name="search" class="form-control me-2" />
+                <input type="search" id="search" name="search" class="form-control form-control-sm me-1 searchField" />
                 <input type="submit" value="Search" class="btn btn-warning" />
             </form>
         </div>
@@ -82,7 +82,8 @@ include 'session.php';
         if ($num > 0) {
 
             // data from database will be here >
-            echo "<table class='table table-hover table-responsive table-bordered'>"; //start table
+            echo '<div class="table-responsive">';
+            echo "<table class='table table-hover table-bordered'>"; //start table
 
             //creating our table heading
             echo "<tr class='text-center'>";
@@ -120,7 +121,7 @@ include 'session.php';
                 echo "<a href='product_read_one.php?id={$id}' class='btn btn-info' style='margin-right: 0.5em;'>Read</a>";
 
                 // we will use this links on next part of this post
-                echo "<a href='product_update.php?id={$id}' class='btn btn-primary' style='margin-right: 0.5em;'>Edit</a>";
+                echo "<a href='product_update.php?id={$id}' class='btn btn-primary' style='margin-right: 0.5em; margin-top: 0.5em; margin-bottom:0.5em;'>Edit</a>";
 
                 // we will use this links on next part of this post
                 echo "<a href='#' onclick='delete_product({$id});'  class='btn btn-danger'>Delete</a>";
@@ -144,6 +145,7 @@ include 'session.php';
 
             // end table
             echo "</table>";
+            echo '<div>';
         }
         // if no records found
         else {
