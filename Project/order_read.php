@@ -30,7 +30,7 @@ include 'session.php';
             <a href="order_create.php" class="btn btn-primary m-b-1em">Create New Order</a>
 
             <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="get" class="d-flex">
-                <input type="search" id="search" name="search" class="form-control me-2" />
+                <input type="search" id="search" name="search" class="form-control form-control-sm me-1 searchField" />
                 <input type="submit" value="Search" class="btn btn-warning" />
             </form>
         </div>
@@ -81,7 +81,8 @@ include 'session.php';
 
         //check if more than 0 record found
         if ($num > 0) {
-            echo "<table class='table table-hover table-responsive table-bordered'>";
+            echo '<div class="table-responsive">';
+            echo "<table class='table table-hover table-bordered'>";
 
             echo "<tr class='text-center'>";
             echo "<th>Order ID</th>";
@@ -123,14 +124,15 @@ include 'session.php';
                 echo "<td class='text-end'>RM " . number_format($total, 2) . "</td>";
 
                 echo "<td>";
-                echo "<a href='order_read_details.php?order_id={$order_id}' class='btn btn-info' style='margin-right: 1em;'>Read</a>";
-                echo "<a href='update.php?order_id={$order_id}' class='btn btn-primary' style='margin-right: 1em;'>Edit</a>";
+                echo "<a href='order_read_details.php?order_id={$order_id}' class='btn btn-info' style='margin-right: 0.5em;'>Read</a>";
+                echo "<a href='order_update.php?order_id={$order_id}' class='btn btn-primary' style='margin-right: 0.5em; margin-top: 0.5em; margin-bottom:0.5em;'>Edit</a>";
                 echo "<a href='#' onclick='delete_order({$order_id});' class='btn btn-danger'>Delete</a>";
                 echo "</td>";
                 echo "</tr>";
             }
 
             echo "</table>";
+            echo '<div>';
         } else {
             echo "<div class='alert alert-danger'>No records found.</div>";
         }
