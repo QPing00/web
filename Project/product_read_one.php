@@ -87,11 +87,12 @@ include 'session.php';
         <!-- HTML read one record table will be here -->
         <!--we have our html table here where the record will be displayed-->
         <table class='table table-hover table-responsive table-bordered'>
-            <tr class='text-center'>
-                <td rowspan="9">
+            <tr>
+                <td>Image</td>
+                <td>
                     <br>
                     <?php
-                    echo $image == '' ? "<img src = 'image/image_product.jpg' width = '280' height = '280'>" : "<img src = '$image' width = '280' height = '280'>";
+                    echo $image == '' ? "<img src = 'image/image_product.jpg' width = '150' height = '150'>" : "<img src = '$image' width = '150' height = '150'>";
                     ?>
 
                 </td>
@@ -123,7 +124,8 @@ include 'session.php';
                 <td><?php echo htmlspecialchars($expired_date, ENT_QUOTES);  ?></td>
             </tr>
             <tr>
-                <td colspan="2">
+                <td></td>
+                <td>
                     <?php
                     echo "<a href='product_update.php?id=$id' class='btn btn-primary' style='margin-right: 0.5em;'>Edit</a>";
                     echo "<a href='#' onclick='delete_product({$id});' class='btn btn-danger'>Delete</a>";
@@ -131,8 +133,7 @@ include 'session.php';
                 </td>
             </tr>
         </table>
-        <br>
-        <a href='product_read.php' class='btn btn-warning'>Back to read products</a>
+        <a href='product_read.php' class='btn btn-outline-dark'>Back to read products</a>
 
         <!--
             The ENT_QUOTES flag, when used with the htmlspecialchars() or htmlentities() function, 
